@@ -34,12 +34,10 @@ import com.nukkitx.protocol.bedrock.packet.TransferPacket;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import org.geysermc.common.window.SimpleFormWindow;
-import org.geysermc.common.window.response.SimpleFormResponse;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.session.cache.ResourcePackCache;
-import org.geysermc.connector.network.translators.item.ItemEntry;
-import org.geysermc.connector.network.translators.item.ItemRegistry;
+import org.geysermc.connector.registry.type.ItemMapping;
+import org.geysermc.cumulus.response.SimpleFormResponse;
 import org.geysermc.packconverter.api.PackConverter;
 import org.geysermc.packconverter.api.utils.CustomModelData;
 
@@ -50,17 +48,13 @@ public class JavaResourcePackUtils {
 
     public static final int WINDOW_ID = 5533;
 
-    public static boolean handleBedrockResponse(GeyserSession session, String formData) {
-        SimpleFormWindow window = session.getResourcePackCache().getForm();
+    public static boolean handleBedrockResponse(GeyserSession session, SimpleFormResponse formData) {
         // Sometimes sends twice?
-        if (window == null) return true;
-        session.getResourcePackCache().setForm(null);
-        window.setResponse(formData);
-        SimpleFormResponse response = (SimpleFormResponse) window.getResponse();
-        if (response == null || response.getClickedButtonId() == 1) {
+        if (formData.isInvalid()) return true;
+        if (formData.isClosed() || formData.getClickedButtonId() == 1) {
             ClientResourcePackStatusPacket packet = new ClientResourcePackStatusPacket(ResourcePackStatus.DECLINED);
             session.sendDownstreamPacket(packet);
-        } else if (response.getClickedButtonId() == 0) {
+        } else if (formData.getClickedButtonId() == 0) {
             ClientResourcePackStatusPacket packet = new ClientResourcePackStatusPacket(ResourcePackStatus.ACCEPTED);
             session.sendDownstreamPacket(packet);
 
@@ -115,9 +109,9 @@ public class JavaResourcePackUtils {
                         // Custom items
                         if (!converter.getCustomModelData().isEmpty()) {
                             // Get the last registered Bedrock index
-                            int index = ItemRegistry.ITEMS.size();
+                            int index = session.getItemMappings().getItems().size();
                             for (Map.Entry<String, Int2ObjectMap<CustomModelData>> map : converter.getCustomModelData().entrySet()) {
-                                ItemEntry itemEntry = ItemRegistry.getItemEntry("minecraft:" + map.getKey());
+                                ItemMapping itemMapping = session.getItemMappings().getMapping("minecraft:" + map.getKey());
                                 // Start the registry of Java custom model data ID to Bedrock registered ID
                                 Int2IntMap customModelDataToBedrockId = new Int2IntOpenHashMap(map.getValue().size());
                                 for (Int2ObjectMap.Entry<CustomModelData> customModelData : map.getValue().int2ObjectEntrySet()) {
@@ -127,7 +121,7 @@ public class JavaResourcePackUtils {
                                     rpCache.getBedrockCustomItems().add(new StartGamePacket.ItemEntry(identifier, (short) index, true));
                                     // Put in the Java custom model data key and the Bedrock index (for item searching)
                                     customModelDataToBedrockId.put(customModelData.getIntKey(), index);
-                                    rpCache.getBedrockCustomIdToProperBedrockId().put(index, itemEntry.getBedrockId());
+                                    rpCache.getBedrockCustomIdToProperBedrockId().put(index, itemMapping.getBedrockId());
                                     // Save the component data needed to send item properties (durability, is food, etc)
                                     rpCache.getComponentData().add(new ComponentItemData(identifier, NbtMap.builder()
                                             .putCompound("components", customModelData.getValue().getNbt())
@@ -136,7 +130,7 @@ public class JavaResourcePackUtils {
                                     .build()));
                                 }
                                 // Put in the final lookup of Java ID to custom model data indexes to Bedrock ID
-                                rpCache.getJavaToCustomModelDataToBedrockId().put(itemEntry.getJavaId(), customModelDataToBedrockId);
+                                rpCache.getJavaToCustomModelDataToBedrockId().put(itemMapping.getJavaId(), customModelDataToBedrockId);
                             }
                         }
                         //noinspection ResultOfMethodCallIgnored

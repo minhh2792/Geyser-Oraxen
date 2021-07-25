@@ -34,8 +34,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
-import org.geysermc.common.window.SimpleFormWindow;
-import org.geysermc.connector.network.translators.item.ItemRegistry;
+import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.utils.ResourcePack;
 
 import java.util.ArrayList;
@@ -43,9 +42,6 @@ import java.util.List;
 
 @Getter @Setter
 public class ResourcePackCache {
-
-    private SimpleFormWindow form;
-
     private String resourcePackUrl;
     private String resourcePackHash;
 
@@ -62,12 +58,8 @@ public class ResourcePackCache {
      */
     private boolean customModelDataActive = false;
 
-    public ResourcePackCache() {
-
-    }
-
-    public List<StartGamePacket.ItemEntry> getAllItems() {
-        List<StartGamePacket.ItemEntry> items = new ArrayList<>(ItemRegistry.ITEMS);
+    public List<StartGamePacket.ItemEntry> getAllItems(GeyserSession session) {
+        List<StartGamePacket.ItemEntry> items = new ArrayList<>(session.getItemMappings().getItemEntries());
         items.addAll(bedrockCustomItems);
         return items;
     }

@@ -28,13 +28,14 @@ package org.geysermc.connector.network.translators.java;
 import com.github.steveice10.mc.protocol.data.game.ResourcePackStatus;
 import com.github.steveice10.mc.protocol.packet.ingame.client.ClientResourcePackStatusPacket;
 import com.github.steveice10.mc.protocol.packet.ingame.server.ServerResourcePackSendPacket;
-import org.geysermc.common.window.SimpleFormWindow;
-import org.geysermc.common.window.button.FormButton;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.PacketTranslator;
 import org.geysermc.connector.network.translators.Translator;
 import org.geysermc.connector.utils.JavaResourcePackUtils;
 import org.geysermc.connector.utils.LocaleUtils;
+import org.geysermc.cumulus.Form;
+import org.geysermc.cumulus.SimpleForm;
+import org.geysermc.cumulus.response.SimpleFormResponse;
 
 @Translator(packet = ServerResourcePackSendPacket.class)
 public class JavaResourcePackSendTranslator extends PacketTranslator<ServerResourcePackSendPacket> {
@@ -50,17 +51,19 @@ public class JavaResourcePackSendTranslator extends PacketTranslator<ServerResou
         }
         String language = session.getClientData().getLanguageCode();
 
-        SimpleFormWindow window = new SimpleFormWindow(LocaleUtils.getLocaleString("addServer.resourcePack", language),
-                LocaleUtils.getLocaleString("multiplayer.texturePrompt.line1", language) + "\n" +
-                        LocaleUtils.getLocaleString("multiplayer.texturePrompt.line2", language));
-
-        window.getButtons().add(new FormButton(LocaleUtils.getLocaleString("gui.yes", language)));
-        window.getButtons().add(new FormButton(LocaleUtils.getLocaleString("gui.no", language)));
+        Form window = SimpleForm.builder()
+                .title(LocaleUtils.getLocaleString("addServer.resourcePack", language))
+                .content(LocaleUtils.getLocaleString("multiplayer.texturePrompt.line1", language) + "\n" +
+                        LocaleUtils.getLocaleString("multiplayer.texturePrompt.line2", language))
+                .button(LocaleUtils.getLocaleString("gui.yes", language))
+                .button(LocaleUtils.getLocaleString("gui.no", language))
+                .build();
 
         session.getResourcePackCache().setResourcePackUrl(packet.getUrl());
         session.getResourcePackCache().setResourcePackHash(packet.getHash());
-        session.getResourcePackCache().setForm(window);
 
-        session.sendForm(window, JavaResourcePackUtils.WINDOW_ID);
+        window.setResponseHandler((response) -> JavaResourcePackUtils.handleBedrockResponse(session, (SimpleFormResponse) window.parseResponse(response)));
+
+        session.sendForm(window);
     }
 }
