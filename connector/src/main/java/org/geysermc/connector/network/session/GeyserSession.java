@@ -563,7 +563,7 @@ public class GeyserSession implements CommandSender {
             } else {
                 connector.getLogger().info(LanguageUtils.getLocaleStringLog("geyser.auth.login.floodgate"));
             }
-            authenticate(authData.getName());
+            authenticate(authData.getName().replace(" ", "_"));
         }
     }
 
