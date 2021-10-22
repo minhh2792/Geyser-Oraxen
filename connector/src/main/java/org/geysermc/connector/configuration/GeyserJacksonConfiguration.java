@@ -241,6 +241,9 @@ public abstract class GeyserJacksonConfiguration implements GeyserConfiguration 
     @JsonProperty("scoreboard-packet-threshold")
     private int scoreboardPacketThreshold = 10;
 
+    @JsonProperty("custom-model-data-maping-id")
+    private List<String> customModelDataMapID = null;
+
     @JsonProperty("enable-proxy-connections")
     private boolean enableProxyConnections = false;
 

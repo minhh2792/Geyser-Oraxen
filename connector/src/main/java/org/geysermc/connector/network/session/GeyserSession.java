@@ -58,6 +58,7 @@ import com.nukkitx.protocol.bedrock.data.*;
 import com.nukkitx.protocol.bedrock.data.command.CommandPermission;
 import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.entity.EntityFlag;
+import com.nukkitx.protocol.bedrock.data.inventory.ComponentItemData;
 import com.nukkitx.protocol.bedrock.packet.*;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -154,6 +155,7 @@ public class GeyserSession implements CommandSender {
     private final PreferencesCache preferencesCache;
     private final TagCache tagCache;
     private final WorldCache worldCache;
+    private final CustomModelDataMapID customModelDataMapID;
 
     private final Int2ObjectMap<TeleportCache> teleportMap = new Int2ObjectOpenHashMap<>();
 
@@ -448,6 +450,7 @@ public class GeyserSession implements CommandSender {
         this.connector = connector;
         this.upstream = new UpstreamSession(bedrockServerSession);
         this.eventLoop = eventLoop;
+        this.customModelDataMapID = new CustomModelDataMapID(this);
 
         this.advancementsCache = new AdvancementsCache(this);
         this.bookEditCache = new BookEditCache(this);
@@ -502,6 +505,7 @@ public class GeyserSession implements CommandSender {
         });
     }
 
+
     /**
      * Send all necessary packets to load Bedrock into the server
      */
@@ -514,9 +518,13 @@ public class GeyserSession implements CommandSender {
         // Set the hardcoded shield ID to the ID we just defined in StartGamePacket
         upstream.getSession().getHardcodedBlockingId().set(this.itemMappings.getStoredItems().shield().getBedrockId());
 
+
         if (this.itemMappings.getFurnaceMinecartData() != null) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
             componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            for (ComponentItemData data : customModelDataMapID.getComponentData()) {
+                componentPacket.getItems().add(data);
+            }
             upstream.sendPacket(componentPacket);
         }
 
@@ -1454,5 +1462,9 @@ public class GeyserSession implements CommandSender {
             emoteList.getPieceIds().addAll(pieces);
             player.sendUpstreamPacket(emoteList);
         }
+    }
+
+    public CustomModelDataMapID getCustomModelDataMapID() {
+        return customModelDataMapID;
     }
 }
