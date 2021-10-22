@@ -33,10 +33,12 @@ import com.nukkitx.protocol.bedrock.packet.SetScorePacket;
 import lombok.Getter;
 import org.geysermc.connector.GeyserConnector;
 import org.geysermc.connector.GeyserLogger;
+import org.geysermc.connector.entity.Entity;
 import org.geysermc.connector.entity.player.PlayerEntity;
 import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.utils.LanguageUtils;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -127,35 +129,10 @@ public final class Scoreboard {
             return team;
         }
 
-        team = new Team(this, teamName).addEntities(players);
+        team = new Team(this, teamName);
+        team.addEntities(players);
         teams.put(teamName, team);
         return team;
-    }
-
-    public Objective getObjective(String objectiveName) {
-        return objectives.get(objectiveName);
-    }
-
-    public Collection<Objective> getObjectives() {
-        return objectives.values();
-    }
-
-    public Team getTeam(String teamName) {
-        return teams.get(teamName);
-    }
-
-    public void unregisterObjective(String objectiveName) {
-        Objective objective = getObjective(objectiveName);
-        if (objective != null) {
-            objective.pendingRemove();
-        }
-    }
-
-    public void removeTeam(String teamName) {
-        Team remove = teams.remove(teamName);
-        if (remove != null) {
-            remove.setUpdateType(REMOVE);
-        }
     }
 
     public void onUpdate() {
@@ -170,6 +147,13 @@ public final class Scoreboard {
             // objective has been deleted
             if (objective.getUpdateType() == REMOVE) {
                 removedObjectives.add(objective);
+                continue;
+            }
+
+            // there's nothing we can do with inactive objectives
+            // after checking if the objective has been deleted,
+            // except waiting for the objective to become activated (:
+            if (!objective.isActive()) {
                 continue;
             }
 
@@ -318,6 +302,29 @@ public final class Scoreboard {
         session.sendUpstreamPacket(removeObjectivePacket);
     }
 
+    public Objective getObjective(String objectiveName) {
+        return objectives.get(objectiveName);
+    }
+
+    public Collection<Objective> getObjectives() {
+        return objectives.values();
+    }
+
+    public void unregisterObjective(String objectiveName) {
+        Objective objective = getObjective(objectiveName);
+        if (objective != null) {
+            objective.pendingRemove();
+        }
+    }
+
+    public Objective getSlot(ScoreboardPosition slot) {
+        return objectiveSlots.get(slot);
+    }
+
+    public Team getTeam(String teamName) {
+        return teams.get(teamName);
+    }
+
     public Team getTeamFor(String entity) {
         for (Team team : teams.values()) {
             if (team.hasEntity(entity)) {
@@ -325,5 +332,58 @@ public final class Scoreboard {
             }
         }
         return null;
+    }
+
+    public void removeTeam(String teamName) {
+        Team remove = teams.remove(teamName);
+        if (remove != null) {
+            remove.setUpdateType(REMOVE);
+            // We need to use the direct entities list here, so #refreshSessionPlayerDisplays also updates accordingly
+            // With the player's lack of a team in visibility checks
+            updateEntityNames(remove, remove.getEntities(), true);
+        }
+    }
+
+    /**
+     * Updates the display names of all entities in a given team.
+     * @param teamChange the players have either joined or left the team. Used for optimizations when just the display name updated.
+     */
+    public void updateEntityNames(Team team, boolean teamChange) {
+        Set<String> names = new HashSet<>(team.getEntities());
+        updateEntityNames(team, names, teamChange);
+    }
+
+    /**
+     * Updates the display name of a set of entities within a given team. The team may also be null if the set is being removed
+     * from a team.
+     */
+    public void updateEntityNames(@Nullable Team team, Set<String> names, boolean teamChange) {
+        if (names.remove(session.getPlayerEntity().getUsername()) && teamChange) {
+            // If the player's team changed, then other entities' teams may modify their visibility based on team status
+            refreshSessionPlayerDisplays();
+        }
+        if (!names.isEmpty()) {
+            for (Entity entity : session.getEntityCache().getEntities().values()) {
+                // This more complex logic is for the future to iterate over all entities, not just players
+                if (entity instanceof PlayerEntity player && names.remove(player.getUsername())) {
+                    player.updateDisplayName(session, team, true);
+                    if (names.isEmpty()) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * If the team's player was refreshed, then we need to go through every entity and check...
+     */
+    private void refreshSessionPlayerDisplays() {
+        for (Entity entity : session.getEntityCache().getEntities().values()) {
+            if (entity instanceof PlayerEntity player) {
+                Team playerTeam = session.getWorldCache().getScoreboard().getTeamFor(player.getUsername());
+                player.updateDisplayName(session, playerTeam, true);
+            }
+        }
     }
 }
