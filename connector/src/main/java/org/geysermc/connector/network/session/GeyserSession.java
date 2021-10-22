@@ -64,6 +64,7 @@ import io.netty.channel.EventLoop;
 import it.unimi.dsi.fastutil.ints.*;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectIterator;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -84,6 +85,8 @@ import org.geysermc.connector.entity.player.SessionPlayerEntity;
 import org.geysermc.connector.entity.player.SkullPlayerEntity;
 import org.geysermc.connector.inventory.Inventory;
 import org.geysermc.connector.inventory.PlayerInventory;
+import org.geysermc.connector.network.UpstreamPacketHandler;
+import org.geysermc.connector.network.translators.chat.MessageTranslator;
 import org.geysermc.connector.network.session.auth.AuthData;
 import org.geysermc.connector.network.session.auth.BedrockClientData;
 import org.geysermc.connector.network.session.cache.*;
@@ -163,6 +166,9 @@ public class GeyserSession implements CommandSender {
      */
     private boolean isInWorldBorderWarningArea = false;
 
+    @Setter
+    private ResourcePackCache resourcePackCache;
+
     private final PlayerInventory playerInventory;
     @Setter
     private Inventory openInventory;
@@ -228,6 +234,11 @@ public class GeyserSession implements CommandSender {
 
     private boolean loggedIn;
     private boolean loggingIn;
+
+    @Setter
+    private boolean transferring;
+
+    private List<Packet> cachedPackets = new ObjectArrayList<>();
 
     @Setter
     private boolean spawned;
@@ -463,6 +474,8 @@ public class GeyserSession implements CommandSender {
 
         this.worldBorder = new WorldBorder(this);
 
+        this.resourcePackCache = new ResourcePackCache();
+
         this.collisionManager = new CollisionManager(this);
 
         this.playerEntity = new SessionPlayerEntity(this);
@@ -514,10 +527,17 @@ public class GeyserSession implements CommandSender {
         // Set the hardcoded shield ID to the ID we just defined in StartGamePacket
         upstream.getSession().getHardcodedBlockingId().set(this.itemMappings.getStoredItems().shield().getBedrockId());
 
-        if (this.itemMappings.getFurnaceMinecartData() != null) {
+        boolean furnaceMinecartActive = this.itemMappings.getFurnaceMinecartData() != null;
+        if (resourcePackCache.isCustomModelDataActive() || furnaceMinecartActive) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
-            componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            if (furnaceMinecartActive) {
+                componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            }
+            if (resourcePackCache.isCustomModelDataActive()) {
+                componentPacket.getItems().addAll(resourcePackCache.getComponentData());
+            }
             upstream.sendPacket(componentPacket);
+            System.out.println(componentPacket);
         }
 
         ChunkUtils.sendEmptyChunks(this, playerEntity.getPosition().toInt(), 0, false);
@@ -915,6 +935,9 @@ public class GeyserSession implements CommandSender {
     }
 
     public void disconnect(String reason) {
+        if (transferring) {
+            UpstreamPacketHandler.RECONNECTING_CLIENTS.put(authData.getXboxUUID(), resourcePackCache);
+        }
         if (!closed) {
             loggedIn = false;
             if (downstream != null) {
@@ -1192,7 +1215,7 @@ public class GeyserSession implements CommandSender {
         // startGamePacket.setCurrentTick(0);
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setItemEntries(this.itemMappings.getItemEntries());
+        startGamePacket.setItemEntries(resourcePackCache.getBedrockCustomItems().isEmpty() ? this.itemMappings.getItemEntries() : resourcePackCache.getAllItems(this));
         startGamePacket.setVanillaVersion("*");
         startGamePacket.setInventoriesServerAuthoritative(true);
         startGamePacket.setServerEngine(""); // Do we want to fill this in?
