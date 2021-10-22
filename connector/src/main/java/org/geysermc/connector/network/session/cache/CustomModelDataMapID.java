@@ -29,6 +29,7 @@ import com.nukkitx.nbt.NbtMap;
 import com.nukkitx.nbt.NbtMapBuilder;
 import com.nukkitx.nbt.NbtType;
 import com.nukkitx.protocol.bedrock.data.inventory.ComponentItemData;
+import com.nukkitx.protocol.bedrock.packet.StartGamePacket;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.geysermc.connector.network.session.GeyserSession;
 
@@ -39,6 +40,7 @@ import java.util.Map;
 
 public class CustomModelDataMapID {
     private final Map<Integer, String> mapping;
+    private final List<StartGamePacket.ItemEntry> items = new ObjectArrayList<>();
     private final List<ComponentItemData> componentData = new ObjectArrayList<>();
 
 
@@ -49,38 +51,43 @@ public class CustomModelDataMapID {
     public Map<Integer, String> getMappings() {
         return mapping;
     }
+
+    public List<StartGamePacket.ItemEntry> getItems() {
+        return items;
+    }
+
     public CustomModelDataMapID(GeyserSession session){
         List<String> list = session.getConnector().getConfig().getCustomModelDataMapID();
         mapping = new HashMap<>();
         for (String s : list) {
             mapping.put(Integer.parseInt(s.split(";")[0]), s.split(";")[1]);
         }
-        for (int key : mapping.keySet()){
-        NbtMapBuilder builder = NbtMap.builder();
-        builder.putString("name", mapping.get(key))
-                .putInt("id", key);
+        int index = session.getItemMappings().getItems().size();
+        for (int key : mapping.keySet()) {
+            index++;
+            NbtMapBuilder builder = NbtMap.builder();
+            builder.putString("name", mapping.get(key))
+                    .putInt("id", index);
 
-        NbtMapBuilder itemProperties = NbtMap.builder();
+            NbtMapBuilder itemProperties = NbtMap.builder();
 
-        NbtMapBuilder componentBuilder = NbtMap.builder();
-        // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
-        // 1.17.30 moves the icon to the item properties section
+            NbtMapBuilder componentBuilder = NbtMap.builder();
+            // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
+            // 1.17.30 moves the icon to the item properties section
 
-        componentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
-
-        // Indicate that the arm animation should play on rails
-        List<NbtMap> useOnTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
+            // Indicate that the arm animation should play on rails
+            List<NbtMap> useOnTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
 
 
-        // We always want to allow offhand usage when we can - matches Java Edition
-        itemProperties.putBoolean("allow_off_hand", true);
-        itemProperties.putBoolean("hand_equipped", true);
-        itemProperties.putInt("max_stack_size", 64);
+            // We always want to allow offhand usage when we can - matches Java Edition
+            itemProperties.putBoolean("allow_off_hand", true);
+            itemProperties.putBoolean("hand_equipped", true);
+            itemProperties.putInt("max_stack_size", 64);
 
-        componentBuilder.putCompound("item_properties", itemProperties.build());
-        builder.putCompound("components", componentBuilder.build());
-        componentData.add(new ComponentItemData(mapping.get(key), builder.build()));
+            componentBuilder.putCompound("item_properties", itemProperties.build());
+            builder.putCompound("components", componentBuilder.build());
+            componentData.add(new ComponentItemData(mapping.get(key), builder.build()));
+            items.add(new StartGamePacket.ItemEntry(mapping.get(key), (short) index));
         }
-
     }
 }
