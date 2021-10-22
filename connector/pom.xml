@@ -237,7 +237,8 @@
             <groupId>org.geysermc</groupId>
             <artifactId>packconverter</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/packconverter.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
