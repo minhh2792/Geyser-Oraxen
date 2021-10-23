@@ -520,9 +520,6 @@ public class GeyserSession implements CommandSender {
         if (this.itemMappings.getFurnaceMinecartData() != null) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
             componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
-            for (ComponentItemData data : customModelDataMapID.getComponentData()) {
-                componentPacket.getItems().add(data);
-            }
             upstream.sendPacket(componentPacket);
         }
 
