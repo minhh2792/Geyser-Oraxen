@@ -522,11 +522,11 @@ public class ItemRegistryPopulator {
                     int itemId = mappings.size() + 1;
 
 
-                    entries.put("geysermc:" + texture + customItemData, new StartGamePacket.ItemEntry("geysermc:" + texture + customItemData, (short) itemId, true));
+                    entries.put("geysermc:" + texture + customModelData, new StartGamePacket.ItemEntry("geysermc:" + texture + customModelData, (short) itemId, true));
 
                     mappings.put(javaFurnaceMinecartId, ItemMapping.builder()
                             .javaIdentifier("geysermc:" + texture)
-                            .bedrockIdentifier("geysermc:" + texture + customItemData)
+                            .bedrockIdentifier("geysermc:" + texture + customModelData)
                             .javaId(javaFurnaceMinecartId)
                             .bedrockId(itemId)
                             .bedrockData(0)
@@ -569,7 +569,7 @@ public class ItemRegistryPopulator {
 
                     customComponentBuilder.putCompound("item_properties", customitemProperties.build());
                     builder.putCompound("components", customComponentBuilder.build());
-                    customItemData = new ComponentItemData("geysermc:" + texture + customItemData, custombuilder.build());
+                    customItemData = new ComponentItemData("geysermc:" + texture + customModelData, custombuilder.build());
                     allitemdata.add(customItemData);
                     customIDs.put(customModelData, itemId);
                 }
