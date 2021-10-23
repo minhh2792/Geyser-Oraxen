@@ -1200,8 +1200,9 @@ public class GeyserSession implements CommandSender {
         // startGamePacket.setCurrentTick(0);
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setItemEntries(customModelDataMapID.getItems().isEmpty() ? this.itemMappings.getItemEntries() : customModelDataMapID.getItems());
+        startGamePacket.setItemEntries(customModelDataMapID.getItems().isEmpty() ? this.itemMappings.getItemEntries() : customModelDataMapID.getAllItems(this));
         startGamePacket.setVanillaVersion("*");
+        startGamePacket.setSeed(114514);
         startGamePacket.setInventoriesServerAuthoritative(true);
         startGamePacket.setServerEngine(""); // Do we want to fill this in?
 

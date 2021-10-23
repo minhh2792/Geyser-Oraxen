@@ -33,10 +33,7 @@ import com.nukkitx.protocol.bedrock.packet.StartGamePacket;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.geysermc.connector.network.session.GeyserSession;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomModelDataMapID {
     private final Map<Integer, String> mapping;
@@ -54,7 +51,12 @@ public class CustomModelDataMapID {
 
     public List<StartGamePacket.ItemEntry> getItems() {
         return items;
-    }
+    }public List<StartGamePacket.ItemEntry> getAllItems(GeyserSession session) {
+       List<StartGamePacket.ItemEntry> items = new ArrayList<>(session.getItemMappings().getItemEntries());
+       items.addAll(items);
+       return items;
+   }
+
 
     public CustomModelDataMapID(GeyserSession session){
         List<String> list = session.getConnector().getConfig().getCustomModelDataMapID();
