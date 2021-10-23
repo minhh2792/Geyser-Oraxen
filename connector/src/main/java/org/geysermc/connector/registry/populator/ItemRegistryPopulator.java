@@ -548,8 +548,7 @@ public class ItemRegistryPopulator {
                     NbtMapBuilder customComponentBuilder = NbtMap.builder();
                     // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
                     // 1.17.30 moves the icon to the item properties section
-                    (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
-                            customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder()
+                    customitemProperties.putCompound("minecraft:icon", NbtMap.builder()
                             .putString("texture", texture).build());
                     customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
 
