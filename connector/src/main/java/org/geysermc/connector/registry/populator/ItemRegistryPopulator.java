@@ -572,8 +572,7 @@ public class ItemRegistryPopulator {
                     customIDs.put(customModelData, itemId);
                 }
 
-
-                 */
+                */
             }
 
             ItemMappings itemMappings = ItemMappings.builder()
