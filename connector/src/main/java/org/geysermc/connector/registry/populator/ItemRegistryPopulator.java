@@ -505,8 +505,7 @@ public class ItemRegistryPopulator {
                 builder.putCompound("components", componentBuilder.build());
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
 
-
-
+                /*
                 for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
 
 
@@ -572,25 +571,28 @@ public class ItemRegistryPopulator {
                     allitemdata.add(customItemData);
                     customIDs.put(customModelData, itemId);
                 }
+
+
+                 */
             }
 
-                ItemMappings itemMappings = ItemMappings.builder()
-                        .creativeItems(creativeItems.toArray(new ItemData[0]))
-                        .itemEntries(new ArrayList<>(entries.values()))
-                        .itemNames(itemNames.toArray(new String[0]))
-                        .storedItems(new StoredItemMappings(identifierToMapping))
-                        .javaOnlyItems(javaOnlyItems)
-                        .bucketIds(buckets)
-                        .boatIds(boats)
-                        .spawnEggIds(spawnEggs)
-                        .carpets(carpets)
-                        .furnaceMinecartData(furnaceMinecartData)
-                        .customItems(allitemdata)
-                        .build();
+            ItemMappings itemMappings = ItemMappings.builder()
+                    .creativeItems(creativeItems.toArray(new ItemData[0]))
+                    .itemEntries(new ArrayList<>(entries.values()))
+                    .itemNames(itemNames.toArray(new String[0]))
+                    .storedItems(new StoredItemMappings(identifierToMapping))
+                    .javaOnlyItems(javaOnlyItems)
+                    .bucketIds(buckets)
+                    .boatIds(boats)
+                    .spawnEggIds(spawnEggs)
+                    .carpets(carpets)
+                    .furnaceMinecartData(furnaceMinecartData)
+                    .customItems(allitemdata)
+                    .build();
 
 
-                Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
-
+            Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
         }
+
     }
 }
