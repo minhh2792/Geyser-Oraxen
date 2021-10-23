@@ -552,7 +552,7 @@ public class ItemRegistryPopulator {
                     (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
                             customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder()
                             .putString("texture", texture).build());
-                    customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item").build());
+                    customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item" + itemId).build());
 
                     List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
 
@@ -567,7 +567,7 @@ public class ItemRegistryPopulator {
                     customItemData = new ComponentItemData("geysermc:" + texture + customModelData, custombuilder.build());
                     allitemdata.add(customItemData);
                     customIDs.put(customModelData, itemId);
-                    itemId++;
+
                 }
 
 
