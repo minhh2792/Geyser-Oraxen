@@ -58,7 +58,8 @@ import java.util.*;
 /**
  * Populates the item registries.
  */
-public class ItemRegistryPopulator {
+public class ItemRegistryPopulator{
+    private static int FID;
     private static final Map<String, PaletteVersion> PALETTE_VERSIONS;
 
     static {
@@ -445,7 +446,7 @@ public class ItemRegistryPopulator {
             if (usingFurnaceMinecart) {
                 // Add the furnace minecart as a custom item
                 int furnaceMinecartId = mappings.size() + 1;
-
+                FID = furnaceMinecartId;
                 entries.put("geysermc:furnace_minecart", new StartGamePacket.ItemEntry("geysermc:furnace_minecart", (short) furnaceMinecartId, true));
 
                 mappings.put(javaFurnaceMinecartId, ItemMapping.builder()
@@ -515,6 +516,11 @@ public class ItemRegistryPopulator {
                     .build();
 
             Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
+
+
         }
+    }
+    public static int getFid(){
+        return this.FID;
     }
 }

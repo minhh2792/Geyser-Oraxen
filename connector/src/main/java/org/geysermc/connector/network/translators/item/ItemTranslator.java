@@ -39,6 +39,7 @@ import org.geysermc.connector.network.session.GeyserSession;
 import org.geysermc.connector.network.translators.ItemRemapper;
 import org.geysermc.connector.network.translators.chat.MessageTranslator;
 import org.geysermc.connector.registry.BlockRegistries;
+import org.geysermc.connector.registry.populator.ItemRegistryPopulator;
 import org.geysermc.connector.registry.type.ItemMapping;
 import org.geysermc.connector.registry.type.ItemMappings;
 import org.geysermc.connector.utils.FileUtils;
@@ -181,6 +182,9 @@ public abstract class ItemTranslator {
             builder.canPlace(canPlace);
         }
 
+        if (nbt.get("CustomModelData")!=null){
+            builder.id(ItemRegistryPopulator.getFid());
+        }
         return builder.build();
     }
 
