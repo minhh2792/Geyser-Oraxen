@@ -58,6 +58,7 @@ import com.nukkitx.protocol.bedrock.data.*;
 import com.nukkitx.protocol.bedrock.data.command.CommandPermission;
 import com.nukkitx.protocol.bedrock.data.entity.EntityData;
 import com.nukkitx.protocol.bedrock.data.entity.EntityFlag;
+import com.nukkitx.protocol.bedrock.data.inventory.ComponentItemData;
 import com.nukkitx.protocol.bedrock.packet.*;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -158,6 +159,8 @@ public class GeyserSession implements CommandSender {
     private final Int2ObjectMap<TeleportCache> teleportMap = new Int2ObjectOpenHashMap<>();
 
     private final WorldBorder worldBorder;
+
+    private final List<String> customModelDataMappings;
     /**
      * Whether simulated fog has been sent to the client or not.
      */
@@ -463,6 +466,8 @@ public class GeyserSession implements CommandSender {
 
         this.worldBorder = new WorldBorder(this);
 
+        this.customModelDataMappings = this.getConnector().getConfig().getCustomModelDataMappings();
+
         this.collisionManager = new CollisionManager(this);
 
         this.playerEntity = new SessionPlayerEntity(this);
@@ -517,6 +522,9 @@ public class GeyserSession implements CommandSender {
         if (this.itemMappings.getFurnaceMinecartData() != null) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
             componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            for (ComponentItemData data: this.itemMappings.getCustomItems()){
+                componentPacket.getItems().add(data);
+            }
             upstream.sendPacket(componentPacket);
         }
 
@@ -1454,5 +1462,9 @@ public class GeyserSession implements CommandSender {
             emoteList.getPieceIds().addAll(pieces);
             player.sendUpstreamPacket(emoteList);
         }
+    }
+
+    public List<String> getCustomModelDataMappings() {
+        return this.customModelDataMappings;
     }
 }

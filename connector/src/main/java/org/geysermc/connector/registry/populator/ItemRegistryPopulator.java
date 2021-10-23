@@ -75,12 +75,14 @@ public class ItemRegistryPopulator {
 
     private record PaletteVersion(int protocolVersion, Map<String, String> additionalTranslatedItems) {
     }
+    public static Map<Integer, Integer> customIDs;
 
     public static void populate() {
         // Load item mappings from Java Edition to Bedrock Edition
         InputStream stream = FileUtils.getResource("mappings/items.json");
 
-        TypeReference<Map<String, GeyserMappingItem>> mappingItemsType = new TypeReference<>() { };
+        TypeReference<Map<String, GeyserMappingItem>> mappingItemsType = new TypeReference<>() {
+        };
 
         Map<String, GeyserMappingItem> items;
         try {
@@ -93,7 +95,8 @@ public class ItemRegistryPopulator {
         for (Map.Entry<String, PaletteVersion> palette : PALETTE_VERSIONS.entrySet()) {
             stream = FileUtils.getResource(String.format("bedrock/runtime_item_states.%s.json", palette.getKey()));
 
-            TypeReference<List<PaletteItem>> paletteEntriesType = new TypeReference<>() {};
+            TypeReference<List<PaletteItem>> paletteEntriesType = new TypeReference<>() {
+            };
 
             // Used to get the Bedrock namespaced ID (in instances where there are small differences)
             Object2IntMap<String> bedrockIdentifierToId = new Object2IntOpenHashMap<>();
@@ -276,6 +279,8 @@ public class ItemRegistryPopulator {
                             boolean firstPass = true;
                             // Block states are all grouped together. In the mappings, we store the first block runtime ID in order,
                             // and the last, if relevant. We then iterate over all those values and get their Bedrock equivalents
+                            customIDs = new HashMap<>();
+
                             Integer lastBlockRuntimeId = entry.getValue().getLastBlockRuntimeId() == null ? firstBlockRuntimeId : entry.getValue().getLastBlockRuntimeId();
                             for (int i = firstBlockRuntimeId; i <= lastBlockRuntimeId; i++) {
                                 int bedrockBlockRuntimeId = blockMappings.getBedrockBlockId(i);
@@ -498,23 +503,92 @@ public class ItemRegistryPopulator {
                 componentBuilder.putCompound("item_properties", itemProperties.build());
                 builder.putCompound("components", componentBuilder.build());
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
+
+
+                List<ComponentItemData> allitemdata = new ArrayList<>();
+                for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
+
+
+                    String[] values = sd.split(";");
+
+                    int customModelData = Integer.parseInt(values[0]);
+                    String texture = values[1];
+                    boolean isTool = Boolean.parseBoolean(values[2]);
+
+                    ComponentItemData customItemData = null;
+
+                    // Add the furnace minecart as a custom item
+                    int itemId = mappings.size() + 1;
+
+                    entries.put("geysermc:" + texture + customItemData, new StartGamePacket.ItemEntry("geysermc:" + texture + customItemData, (short) itemId, true));
+
+                    mappings.put(javaFurnaceMinecartId, ItemMapping.builder()
+                            .javaIdentifier("geysermc:" + texture)
+                            .bedrockIdentifier("geysermc:" + texture + customItemData)
+                            .javaId(javaFurnaceMinecartId)
+                            .bedrockId(itemId)
+                            .bedrockData(0)
+                            .bedrockBlockId(-1)
+                            .stackSize(64)
+                            .build());
+
+                    creativeItems.add(ItemData.builder()
+                            .netId(netId)
+                            .id(itemId)
+                            .count(1).build());
+
+                    NbtMapBuilder custombuilder = NbtMap.builder();
+                    custombuilder.putString("name", "geysermc:" + texture + customModelData)
+                            .putInt("id", itemId);
+
+                    NbtMapBuilder customitemProperties = NbtMap.builder();
+
+                    NbtMapBuilder customComponentBuilder = NbtMap.builder();
+                    // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
+                    // 1.17.30 moves the icon to the item properties section
+                    (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
+                            customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder()
+                            .putString("texture", texture).build());
+                    customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
+
+                    // Indicate that the arm animation should play on rails
+                    List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
+                    customComponentBuilder.putCompound("minecraft:entity_placer", NbtMap.builder()
+                            .putList("dispense_on", NbtType.COMPOUND, useOnCustomTag)
+                            .putString("entity", "minecraft:minecart")
+                            .putList("use_on", NbtType.COMPOUND, useOnCustomTag)
+                            .build());
+
+                    // We always want to allow offhand usage when we can - matches Java Edition
+                    customitemProperties.putBoolean("allow_off_hand", true);
+                    customitemProperties.putBoolean("hand_equipped", isTool);
+                    customitemProperties.putInt("max_stack_size", 64);
+                    customitemProperties.putString("creative_group", "itemGroup.name.minecart");
+
+                    customComponentBuilder.putCompound("item_properties", customitemProperties.build());
+                    builder.putCompound("components", customComponentBuilder.build());
+                    customItemData = new ComponentItemData("geysermc:" + texture + customItemData, custombuilder.build());
+                    allitemdata.add(customItemData);
+                    customIDs.put(customModelData, itemId);
+                }
+
+                ItemMappings itemMappings = ItemMappings.builder()
+                        .creativeItems(creativeItems.toArray(new ItemData[0]))
+                        .itemEntries(new ArrayList<>(entries.values()))
+                        .itemNames(itemNames.toArray(new String[0]))
+                        .storedItems(new StoredItemMappings(identifierToMapping))
+                        .javaOnlyItems(javaOnlyItems)
+                        .bucketIds(buckets)
+                        .boatIds(boats)
+                        .spawnEggIds(spawnEggs)
+                        .carpets(carpets)
+                        .furnaceMinecartData(furnaceMinecartData)
+                        .customItems(allitemdata)
+                        .build();
+
+
+                Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
             }
-
-            ItemMappings itemMappings = ItemMappings.builder()
-                    .items(mappings)
-                    .creativeItems(creativeItems.toArray(new ItemData[0]))
-                    .itemEntries(new ArrayList<>(entries.values()))
-                    .itemNames(itemNames.toArray(new String[0]))
-                    .storedItems(new StoredItemMappings(identifierToMapping))
-                    .javaOnlyItems(javaOnlyItems)
-                    .bucketIds(buckets)
-                    .boatIds(boats)
-                    .spawnEggIds(spawnEggs)
-                    .carpets(carpets)
-                    .furnaceMinecartData(furnaceMinecartData)
-                    .build();
-
-            Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
         }
     }
 }
