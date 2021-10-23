@@ -506,6 +506,7 @@ public class ItemRegistryPopulator {
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
 
 
+                int itemId = mappings.size();
 
                 for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
 
@@ -520,8 +521,8 @@ public class ItemRegistryPopulator {
                     ComponentItemData customItemData = null;
 
                     // Add a custom item
-                    int itemId = mappings.size() + 1;
 
+                    itemId = itemId + 1;
 
                     entries.put("geysermc:" + texture + customModelData, new StartGamePacket.ItemEntry("geysermc:" + texture + customModelData, (short) itemId, true));
 
