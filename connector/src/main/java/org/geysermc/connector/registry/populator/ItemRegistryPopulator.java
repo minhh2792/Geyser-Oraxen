@@ -447,6 +447,7 @@ public class ItemRegistryPopulator {
             identifierToMapping.put(lodestoneEntry.getJavaIdentifier(), lodestoneEntry);
 
             ComponentItemData furnaceMinecartData = null;
+            List<ComponentItemData> allitemdata = new ArrayList<>();
             if (usingFurnaceMinecart) {
                 // Add the furnace minecart as a custom item
                 int furnaceMinecartId = mappings.size() + 1;
@@ -505,7 +506,7 @@ public class ItemRegistryPopulator {
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
 
 
-                List<ComponentItemData> allitemdata = new ArrayList<>();
+
                 for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
 
 
@@ -571,6 +572,7 @@ public class ItemRegistryPopulator {
                     allitemdata.add(customItemData);
                     customIDs.put(customModelData, itemId);
                 }
+            }
 
                 ItemMappings itemMappings = ItemMappings.builder()
                         .creativeItems(creativeItems.toArray(new ItemData[0]))
@@ -588,7 +590,7 @@ public class ItemRegistryPopulator {
 
 
                 Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
-            }
+
         }
     }
 }
