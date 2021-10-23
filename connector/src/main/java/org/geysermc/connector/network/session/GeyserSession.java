@@ -155,7 +155,6 @@ public class GeyserSession implements CommandSender {
     private final PreferencesCache preferencesCache;
     private final TagCache tagCache;
     private final WorldCache worldCache;
-    private final CustomModelDataMapID customModelDataMapID;
 
     private final Int2ObjectMap<TeleportCache> teleportMap = new Int2ObjectOpenHashMap<>();
 
@@ -450,7 +449,6 @@ public class GeyserSession implements CommandSender {
         this.connector = connector;
         this.upstream = new UpstreamSession(bedrockServerSession);
         this.eventLoop = eventLoop;
-        this.customModelDataMapID = new CustomModelDataMapID(this);
 
         this.advancementsCache = new AdvancementsCache(this);
         this.bookEditCache = new BookEditCache(this);
@@ -1200,7 +1198,7 @@ public class GeyserSession implements CommandSender {
         // startGamePacket.setCurrentTick(0);
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setItemEntries(customModelDataMapID.getItems().isEmpty() ? this.itemMappings.getItemEntries() : customModelDataMapID.getAllItems(this));
+        startGamePacket.setItemEntries(this.itemMappings.getItemEntries());
         startGamePacket.setVanillaVersion("*");
         startGamePacket.setSeed(114514);
         startGamePacket.setInventoriesServerAuthoritative(true);
@@ -1463,9 +1461,5 @@ public class GeyserSession implements CommandSender {
             emoteList.getPieceIds().addAll(pieces);
             player.sendUpstreamPacket(emoteList);
         }
-    }
-
-    public CustomModelDataMapID getCustomModelDataMapID() {
-        return customModelDataMapID;
     }
 }
