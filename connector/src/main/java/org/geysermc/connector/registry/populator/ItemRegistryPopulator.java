@@ -475,7 +475,7 @@ public class ItemRegistryPopulator{
                 // 1.17.30 moves the icon to the item properties section
                 (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
                         itemProperties : componentBuilder).putCompound("minecraft:icon", NbtMap.builder()
-                        .putString("texture", "minecart_furnace")
+                        .putString("texture", "pa:blowgun")
                         .putString("frame", "0.000000")
                         .putInt("frame_version", 1)
                         .putString("legacy_id", "").build());
@@ -491,7 +491,7 @@ public class ItemRegistryPopulator{
 
                 // We always want to allow offhand usage when we can - matches Java Edition
                 itemProperties.putBoolean("allow_off_hand", true);
-                itemProperties.putBoolean("hand_equipped", false);
+                itemProperties.putBoolean("hand_equipped", true);
                 itemProperties.putInt("max_stack_size", 1);
                 itemProperties.putString("creative_group", "itemGroup.name.minecart");
                 itemProperties.putInt("creative_category", 4); // 4 - "Items"
