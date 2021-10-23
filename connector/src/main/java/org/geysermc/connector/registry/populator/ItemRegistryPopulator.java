@@ -506,7 +506,7 @@ public class ItemRegistryPopulator {
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
 
 
-                int itemId = mappings.size() + 1;
+
                 for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
 
 
@@ -520,7 +520,7 @@ public class ItemRegistryPopulator {
                     ComponentItemData customItemData = null;
 
                     // Add a custom item
-
+                    int itemId = mappings.size() + 1;
 
 
                     entries.put("geysermc:" + texture + customModelData, new StartGamePacket.ItemEntry("geysermc:" + texture + customModelData, (short) itemId, true));
@@ -550,9 +550,9 @@ public class ItemRegistryPopulator {
                     // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
                     // 1.17.30 moves the icon to the item properties section
                     (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
-                            itemProperties : componentBuilder).putCompound("minecraft:icon", NbtMap.builder()
+                            customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder()
                             .putString("texture", texture).build());
-                    customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
+                    customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item").build());
 
                     List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
 
