@@ -183,16 +183,11 @@ public abstract class ItemTranslator {
 
             IntTag customModelData = nbt.get("CustomModelData");
             if (customModelData != null) {
-                if (session.getCustomModelDataMapID().getMappings().containsKey(customModelData.getValue())) {
-                    builder.id(customModelData.getValue());
-                    builder.damage(0);
-                }
+
+                builder.id(ItemRegistryPopulator.getFid());
+                builder.damage(0);
 
             }
-        }
-
-        if (nbt.get("CustomModelData")!=null){
-            builder.id(ItemRegistryPopulator.getFid());
         }
         return builder.build();
     }
