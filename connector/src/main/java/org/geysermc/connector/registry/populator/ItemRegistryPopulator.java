@@ -506,6 +506,7 @@ public class ItemRegistryPopulator {
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
 
 
+                int itemId = mappings.size() + 1;
                 for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
 
 
@@ -518,8 +519,8 @@ public class ItemRegistryPopulator {
 
                     ComponentItemData customItemData = null;
 
-                    // Add the furnace minecart as a custom item
-                    int itemId = mappings.size() + 1;
+                    // Add a custom item
+
 
 
                     entries.put("geysermc:" + texture + customModelData, new StartGamePacket.ItemEntry("geysermc:" + texture + customModelData, (short) itemId, true));
@@ -548,29 +549,25 @@ public class ItemRegistryPopulator {
                     NbtMapBuilder customComponentBuilder = NbtMap.builder();
                     // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
                     // 1.17.30 moves the icon to the item properties section
-                    customitemProperties.putCompound("minecraft:icon", NbtMap.builder()
+                    (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
+                            itemProperties : componentBuilder).putCompound("minecraft:icon", NbtMap.builder()
                             .putString("texture", texture).build());
                     customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
 
-                    // Indicate that the arm animation should play on rails
                     List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
-                    customComponentBuilder.putCompound("minecraft:entity_placer", NbtMap.builder()
-                            .putList("dispense_on", NbtType.COMPOUND, useOnCustomTag)
-                            .putString("entity", "minecraft:minecart")
-                            .putList("use_on", NbtType.COMPOUND, useOnCustomTag)
-                            .build());
+
 
                     // We always want to allow offhand usage when we can - matches Java Edition
                     customitemProperties.putBoolean("allow_off_hand", true);
                     customitemProperties.putBoolean("hand_equipped", isTool);
                     customitemProperties.putInt("max_stack_size", 64);
-                    customitemProperties.putString("creative_group", "itemGroup.name.minecart");
 
                     customComponentBuilder.putCompound("item_properties", customitemProperties.build());
-                    builder.putCompound("components", customComponentBuilder.build());
+                    custombuilder.putCompound("components", customComponentBuilder.build());
                     customItemData = new ComponentItemData("geysermc:" + texture + customModelData, custombuilder.build());
                     allitemdata.add(customItemData);
                     customIDs.put(customModelData, itemId);
+                    itemId++;
                 }
 
 
