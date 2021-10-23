@@ -521,6 +521,6 @@ public class ItemRegistryPopulator{
         }
     }
     public static int getFid(){
-        return this.FID;
+        return FID;
     }
 }
