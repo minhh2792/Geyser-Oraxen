@@ -180,6 +180,15 @@ public abstract class ItemTranslator {
             canPlace = getCanModify(canPlaceOn, canPlace);
             builder.canBreak(canBreak);
             builder.canPlace(canPlace);
+
+            IntTag customModelData = nbt.get("CustomModelData");
+            if (customModelData != null) {
+                if (session.getCustomModelDataMapID().getMappings().containsKey(customModelData.getValue())) {
+                    builder.id(customModelData.getValue());
+                    builder.damage(0);
+                }
+
+            }
         }
 
         if (nbt.get("CustomModelData")!=null){
