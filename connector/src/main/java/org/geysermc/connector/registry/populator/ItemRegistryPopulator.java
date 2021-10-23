@@ -475,7 +475,7 @@ public class ItemRegistryPopulator{
                 // 1.17.30 moves the icon to the item properties section
                 (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
                         itemProperties : componentBuilder).putCompound("minecraft:icon", NbtMap.builder()
-                        .putString("texture", "pa:blowgun")
+                        .putString("texture", "blowgun")
                         .putString("frame", "0.000000")
                         .putInt("frame_version", 1)
                         .putString("legacy_id", "").build());
