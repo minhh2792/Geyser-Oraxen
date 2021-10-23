@@ -230,8 +230,9 @@ public abstract class ItemTranslator {
         }
         CompoundTag nbt = itemStack.getNbt();
 
-        IntTag tag = nbt.get("CustomModelData");
-        if (nbt!=null && tag!= null) {
+
+        if (nbt!=null && nbt.get("CustomModelData")!= null) {
+            IntTag tag = nbt.get("CustomModelData");
             if (ItemRegistryPopulator.customIDs.containsKey(tag.getValue())){
                 builder.id(ItemRegistryPopulator.customIDs.get(tag.getValue()));
                 builder.damage(0);
