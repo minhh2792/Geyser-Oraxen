@@ -80,8 +80,6 @@ public class CustomModelDataMapID {
             // Indicate that the arm animation should play on rails
             List<NbtMap> useOnTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
 
-
-            // We always want to allow offhand usage when we can - matches Java Edition
             itemProperties.putBoolean("allow_off_hand", true);
             itemProperties.putBoolean("hand_equipped", true);
             itemProperties.putInt("max_stack_size", 64);
@@ -91,5 +89,7 @@ public class CustomModelDataMapID {
             componentData.add(new ComponentItemData(mapping.get(key), builder.build()));
             items.add(new StartGamePacket.ItemEntry(mapping.get(key), (short) (session.getItemMappings().getItems().size() + 1)));
         }
+        System.out.println(items);
+        System.out.println(componentData);
     }
 }
