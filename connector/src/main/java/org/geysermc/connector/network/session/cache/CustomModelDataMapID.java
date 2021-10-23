@@ -69,7 +69,7 @@ public class CustomModelDataMapID {
             index++;
             NbtMapBuilder builder = NbtMap.builder();
             builder.putString("name", mapping.get(key))
-                    .putInt("id", index);
+                    .putInt("id", session.getItemMappings().getItems().size() + 1);
 
             NbtMapBuilder itemProperties = NbtMap.builder();
 
@@ -89,7 +89,7 @@ public class CustomModelDataMapID {
             componentBuilder.putCompound("item_properties", itemProperties.build());
             builder.putCompound("components", componentBuilder.build());
             componentData.add(new ComponentItemData(mapping.get(key), builder.build()));
-            items.add(new StartGamePacket.ItemEntry(mapping.get(key), (short) index));
+            items.add(new StartGamePacket.ItemEntry(mapping.get(key), (short) (session.getItemMappings().getItems().size() + 1)));
         }
     }
 }
