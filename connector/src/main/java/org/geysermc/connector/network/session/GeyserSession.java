@@ -160,7 +160,7 @@ public class GeyserSession implements CommandSender {
 
     private final WorldBorder worldBorder;
 
-    private final List<String> customModelDataMappings;
+
     /**
      * Whether simulated fog has been sent to the client or not.
      */
@@ -466,7 +466,6 @@ public class GeyserSession implements CommandSender {
 
         this.worldBorder = new WorldBorder(this);
 
-        this.customModelDataMappings = this.getConnector().getConfig().getCustomModelDataMappings();
 
         this.collisionManager = new CollisionManager(this);
 
@@ -1464,7 +1463,4 @@ public class GeyserSession implements CommandSender {
         }
     }
 
-    public List<String> getCustomModelDataMappings() {
-        return this.customModelDataMappings;
-    }
 }
