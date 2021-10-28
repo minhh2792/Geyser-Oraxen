@@ -42,10 +42,7 @@ import org.geysermc.connector.utils.LanguageUtils;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
@@ -240,6 +237,9 @@ public abstract class GeyserJacksonConfiguration implements GeyserConfiguration 
 
     @JsonProperty("scoreboard-packet-threshold")
     private int scoreboardPacketThreshold = 10;
+
+    @JsonProperty("enable-custom-model-data-mappings")
+    private boolean isUseCustomModelDataMappings = false;
 
     @JsonProperty("enable-proxy-connections")
     private boolean enableProxyConnections = false;

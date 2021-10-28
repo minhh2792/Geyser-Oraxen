@@ -41,6 +41,7 @@ import org.geysermc.connector.network.translators.chat.MessageTranslator;
 import org.geysermc.connector.registry.BlockRegistries;
 import org.geysermc.connector.registry.type.ItemMapping;
 import org.geysermc.connector.registry.type.ItemMappings;
+import org.geysermc.connector.network.session.cache.CustomModelDataMappingsCache;
 import org.geysermc.connector.utils.FileUtils;
 import org.geysermc.connector.utils.LocaleUtils;
 
@@ -226,6 +227,18 @@ public abstract class ItemTranslator {
                 .count(itemStack.getAmount());
         if (itemStack.getNbt() != null) {
             builder.tag(this.translateNbtToBedrock(itemStack.getNbt()));
+        }
+        CompoundTag nbt = itemStack.getNbt();
+        if (nbt!=null && nbt.get("CustomModelData")!= null) {
+            IntTag customModelData = nbt.get("CustomModelData");
+            StringTag type = nbt.get("Material");
+            Map<String, Map<Integer, Integer>> customItemMappings = CustomModelDataMappingsCache.getItemTypeToCustomModelDataMap();
+            if (customItemMappings.containsKey(type)) {
+                if (customItemMappings.get(type).containsKey(customModelData)) {
+                    builder.id(customItemMappings.get(type).get(customModelData));
+                    builder.damage(0);
+                }
+            }
         }
         return builder;
     }

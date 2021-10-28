@@ -188,6 +188,7 @@ metrics:
 # the Scoreboard updates will be limited to four updates per second.
 scoreboard-packet-threshold: 20
 
+enable-custom-model-data-mappings: true
 # Allow connections from ProxyPass and Waterdog.
 # See https://www.spigotmc.org/wiki/firewall-guide/ for assistance - use UDP instead of TCP.
 enable-proxy-connections: false

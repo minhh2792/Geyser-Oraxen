@@ -158,6 +158,9 @@ public class GeyserSession implements CommandSender {
     private final Int2ObjectMap<TeleportCache> teleportMap = new Int2ObjectOpenHashMap<>();
 
     private final WorldBorder worldBorder;
+
+    private final CustomModelDataMappingsCache customModelDataMappingsCache;
+
     /**
      * Whether simulated fog has been sent to the client or not.
      */
@@ -463,6 +466,8 @@ public class GeyserSession implements CommandSender {
 
         this.worldBorder = new WorldBorder(this);
 
+        this.customModelDataMappingsCache = new CustomModelDataMappingsCache(this);
+
         this.collisionManager = new CollisionManager(this);
 
         this.playerEntity = new SessionPlayerEntity(this);
@@ -517,6 +522,10 @@ public class GeyserSession implements CommandSender {
         if (this.itemMappings.getFurnaceMinecartData() != null) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
             componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            if (connector.getConfig().isUseCustomModelDataMappings()) {
+                componentPacket.getItems().addAll(this.customModelDataMappingsCache.getItemDataList());
+            }
+            
             upstream.sendPacket(componentPacket);
         }
 
@@ -1455,4 +1464,5 @@ public class GeyserSession implements CommandSender {
             player.sendUpstreamPacket(emoteList);
         }
     }
+
 }
