@@ -101,6 +101,7 @@ import org.geysermc.cumulus.util.FormBuilder;
 import org.geysermc.floodgate.crypto.FloodgateCipher;
 import org.geysermc.floodgate.util.BedrockData;
 
+import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -165,6 +166,7 @@ public class GeyserSession implements CommandSender {
      * Whether simulated fog has been sent to the client or not.
      */
     private boolean isInWorldBorderWarningArea = false;
+
 
     private final PlayerInventory playerInventory;
     @Setter
@@ -481,6 +483,14 @@ public class GeyserSession implements CommandSender {
 
         this.spawned = false;
         this.loggedIn = false;
+
+        if (connector.getConfig().isUseCustomModelDataMappings()) {
+            try {
+                customModelDataMappingsCache.loadMappingsFile();
+            } catch (IOException ioException) {
+                connector.getLogger().warning("There are something wrong with your mappings.json");
+            }
+        }
 
         if (connector.getWorldManager().shouldExpectLecternHandled()) {
             // Unneeded on these platforms
@@ -1201,7 +1211,7 @@ public class GeyserSession implements CommandSender {
         // startGamePacket.setCurrentTick(0);
         startGamePacket.setEnchantmentSeed(0);
         startGamePacket.setMultiplayerCorrelationId("");
-        startGamePacket.setItemEntries(this.itemMappings.getItemEntries());
+        startGamePacket.setItemEntries(connector.getConfig().isUseCustomModelDataMappings() ? customModelDataMappingsCache.getAllItems(this) : this.itemMappings.getItemEntries());
         startGamePacket.setVanillaVersion("*");
         startGamePacket.setInventoriesServerAuthoritative(true);
         startGamePacket.setServerEngine(""); // Do we want to fill this in?

@@ -231,7 +231,7 @@ public abstract class ItemTranslator {
         CompoundTag nbt = itemStack.getNbt();
         if (nbt!=null && nbt.get("CustomModelData")!= null) {
             IntTag customModelData = nbt.get("CustomModelData");
-            StringTag type = nbt.get("Material");
+            StringTag type = nbt.get("id");
             Map<String, Map<Integer, Integer>> customItemMappings = CustomModelDataMappingsCache.getItemTypeToCustomModelDataMap();
             if (customItemMappings.containsKey(type)) {
                 if (customItemMappings.get(type).containsKey(customModelData)) {
