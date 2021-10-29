@@ -75,7 +75,7 @@ public class ItemRegistryPopulator {
 
     private record PaletteVersion(int protocolVersion, Map<String, String> additionalTranslatedItems) {
     }
-    public static Map<Integer, Integer> customIDs;
+    public static Map<String, Integer> customIDs;
 
     public static void populate() {
         // Load item mappings from Java Edition to Bedrock Edition
@@ -514,27 +514,19 @@ public class ItemRegistryPopulator {
 
                     String[] values = sd.split(";");
 
-                    int customModelData = Integer.parseInt(values[0]);
-                    String texture = values[1];
-                    boolean isTool = Boolean.parseBoolean(values[2]);
+                    //int customModelData = Integer.parseInt(values[0]);
+                    String texture = values[0];
+                    boolean isTool = Boolean.parseBoolean(values[1]);
 
                     ComponentItemData customItemData = null;
 
                     // Add a custom item
+                    itemId = itemId +1;
+                    javaFurnaceMinecartId = itemIndex++;
 
-                    itemId = itemId + 1;
+                    entries.put("geysermc:" + texture , new StartGamePacket.ItemEntry("geysermc:" + texture , (short) itemId, true));
 
-                    entries.put("geysermc:" + texture + customModelData, new StartGamePacket.ItemEntry("geysermc:" + texture + customModelData, (short) itemId, true));
-
-                    mappings.put(javaFurnaceMinecartId, ItemMapping.builder()
-                            .javaIdentifier("geysermc:" + texture)
-                            .bedrockIdentifier("geysermc:" + texture + customModelData)
-                            .javaId(javaFurnaceMinecartId)
-                            .bedrockId(itemId)
-                            .bedrockData(0)
-                            .bedrockBlockId(-1)
-                            .stackSize(64)
-                            .build());
+                    mappings.put(javaFurnaceMinecartId, ItemMapping.builder().javaIdentifier("geysermc:" + texture).bedrockIdentifier("geysermc:" + texture ).javaId(javaFurnaceMinecartId).bedrockId(itemId).bedrockData(0).bedrockBlockId(-1).stackSize(64).build());
 
                     creativeItems.add(ItemData.builder()
                             .netId(netId)
@@ -542,7 +534,7 @@ public class ItemRegistryPopulator {
                             .count(1).build());
 
                     NbtMapBuilder custombuilder = NbtMap.builder();
-                    custombuilder.putString("name", "geysermc:" + texture + customModelData)
+                    custombuilder.putString("name", "geysermc:" + texture )
                             .putInt("id", itemId);
 
                     NbtMapBuilder customitemProperties = NbtMap.builder();
@@ -550,9 +542,7 @@ public class ItemRegistryPopulator {
                     NbtMapBuilder customComponentBuilder = NbtMap.builder();
                     // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
                     // 1.17.30 moves the icon to the item properties section
-                    (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
-                            customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder()
-                            .putString("texture", texture).build());
+                    (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ? customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder().putString("texture", texture).build());
                     customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item" + itemId).build());
 
                     List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
@@ -565,10 +555,9 @@ public class ItemRegistryPopulator {
 
                     customComponentBuilder.putCompound("item_properties", customitemProperties.build());
                     custombuilder.putCompound("components", customComponentBuilder.build());
-                    customItemData = new ComponentItemData("geysermc:" + texture + customModelData, custombuilder.build());
+                    customItemData = new ComponentItemData("geysermc:" + texture , custombuilder.build());
                     allitemdata.add(customItemData);
-                    customIDs.put(customModelData, itemId);
-
+                    customIDs.put(texture, itemId);
                 }
 
 
