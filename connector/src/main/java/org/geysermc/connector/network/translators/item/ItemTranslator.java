@@ -231,10 +231,16 @@ public abstract class ItemTranslator {
         CompoundTag nbt = itemStack.getNbt();
 
         if (nbt!=null && nbt.get("CustomModelData")!= null) {
-            IntTag tag = nbt.get("CustomModelData");
-            if (ItemRegistryPopulator.customIDs.containsKey(tag.getValue())){
-                builder.id(ItemRegistryPopulator.customIDs.get(tag.getValue()));
-                builder.damage(0);
+            //IntTag tag = nbt.get("CustomModelData");
+            CompoundTag cTag = nbt.get("PublicBukkitValues");
+            if(cTag != null) {
+                StringTag sTag = cTag.get("oraxen:id");
+                if(sTag != null) {
+                    if (ItemRegistryPopulator.customIDs.containsKey(sTag.getValue())) {
+                        builder.id(ItemRegistryPopulator.customIDs.get(sTag.getValue()));
+                        builder.damage(0);
+                    }
+                }
             }
         }
         return builder;
