@@ -20,7 +20,7 @@ bedrock:
   # The MOTD that will be broadcasted to Minecraft: Bedrock Edition clients. This is irrelevant if "passthrough-motd" is set to true
   # If either of these are empty, the respective string will default to "Geyser"
   motd1: "Geyser"
-  motd2: "Another Geyser server."
+  motd2: "Geyser Server"
   # The Server Name that will be sent to Minecraft: Bedrock Edition clients. This is visible in both the pause menu and the settings menu.
   server-name: "Geyser"
   # How much to compress network traffic to the Bedrock client. The higher the number, the more CPU usage used, but
@@ -80,8 +80,8 @@ floodgate-key-file: key.pem
 #    password: javaccountpassword123 # Your Minecraft: Java Edition password
 #    microsoft-account: true # Whether the account is a Mojang or Microsoft account.
 #
-#  bluerkelp2: 
-#    email: not_really_my_email_address_mr_minecrafter53267@gmail.com 
+#  bluerkelp2:
+#    email: not_really_my_email_address_mr_minecrafter53267@gmail.com
 #    password: "this isn't really my password"
 #    microsoft-account: false
 
@@ -189,7 +189,12 @@ metrics:
 scoreboard-packet-threshold: 20
 
 custom-model-data-mappings:
-  - "114514;pa_blowgun;true"
+  # "oraxen_item_id;is_this_a_tool" (pickaxe,sword,etc.)
+  # replace entries below with your own oraxen items
+  - "amber_axe;true"
+  - "amber_helmet;false"
+  - "amber_pickaxe;true"
+  - "banana;false"
 # Allow connections from ProxyPass and Waterdog.
 # See https://www.spigotmc.org/wiki/firewall-guide/ for assistance - use UDP instead of TCP.
 enable-proxy-connections: false
