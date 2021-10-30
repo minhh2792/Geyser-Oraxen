@@ -26,13 +26,18 @@
 package org.geysermc.connector.utils;
 
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.packconverter.api.PackConverter;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import org.geysermc.packconverter.api.*;
 
 /**
  * This represents a resource pack and all the data relevant to it
@@ -67,7 +72,7 @@ public class ResourcePack {
         }
 
         for (File file : directory.listFiles()) {
-            if (file.getName().endsWith(".zip") || file.getName().endsWith(".mcpack")) {
+            if (file.getName().endsWith(".mcpack")) {
                 ResourcePack pack = new ResourcePack();
 
                 pack.sha256 = FileUtils.calculateSHA256(file);
@@ -75,7 +80,6 @@ public class ResourcePack {
                 Stream<? extends ZipEntry> stream = null;
                 try {
                     ZipFile zip = new ZipFile(file);
-
                     stream = zip.stream();
                     stream.forEach((x) -> {
                         if (x.getName().contains("manifest.json")) {
@@ -87,7 +91,6 @@ public class ResourcePack {
                                     pack.file = file;
                                     pack.manifest = manifest;
                                     pack.version = ResourcePackManifest.Version.fromArray(manifest.getHeader().getVersion());
-
                                     PACKS.put(pack.getManifest().getHeader().getUuid().toString(), pack);
                                 }
                             } catch (Exception e) {
@@ -101,6 +104,58 @@ public class ResourcePack {
                 } finally {
                     if (stream != null) {
                         stream.close();
+                    }
+                }
+            }
+            else if (file.getName().endsWith(".zip")) {
+                Path zipDir = directory.toPath();
+                Stream<? extends ZipEntry> stream = null;
+                ZipFile zip = null;
+                PackConverter packConverter = null;
+                String fileName = file.getName().replaceFirst("[.][^.]+$", ".mcpack");
+                try {
+                    zip = new ZipFile(file);
+                }catch (Exception ex){}
+                if(zip.getEntry("pack.mcmeta") != null){
+                    try {
+                        packConverter = new PackConverter(file.toPath(), zipDir.resolve(fileName));
+                        packConverter.convert();
+                        packConverter.pack();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                ResourcePack pack = new ResourcePack();
+                if(zipDir.resolve(fileName).toFile().exists()) {
+                    File fileOutput = zipDir.resolve(fileName).toFile();
+                    pack.sha256 = FileUtils.calculateSHA256(fileOutput);
+                    try {
+                        ZipFile finalZip = new ZipFile(fileOutput);
+                        stream = finalZip.stream();
+                        stream.forEach((x) -> {
+                            if (x.getName().contains("manifest.json")) {
+                                try {
+                                    ResourcePackManifest manifest = FileUtils.loadJson(finalZip.getInputStream(x), ResourcePackManifest.class);
+                                    // Sometimes a pack_manifest file is present and not in a valid format,
+                                    // but a manifest file is, so we null check through that one
+                                    if (manifest.getHeader().getUuid() != null) {
+                                        pack.file = file;
+                                        pack.manifest = manifest;
+                                        pack.version = ResourcePackManifest.Version.fromArray(manifest.getHeader().getVersion());
+                                        PACKS.put(pack.getManifest().getHeader().getUuid().toString(), pack);
+                                    }
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    } catch (Exception e) {
+                        GeyserConnector.getInstance().getLogger().error(LanguageUtils.getLocaleStringLog("geyser.resource_pack.broken", file.getName()));
+                        e.printStackTrace();
+                    } finally {
+                        if (stream != null) {
+                            stream.close();
+                        }
                     }
                 }
             }
