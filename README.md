@@ -29,7 +29,7 @@ Take a look [here](https://github.com/GeyserMC/Geyser/wiki/Setup) for how to set
 [![YouTube Video](https://img.youtube.com/vi/U7dZZ8w7Gi4/0.jpg)](https://www.youtube.com/watch?v=U7dZZ8w7Gi4)
 
 Navigate to config.yml and scroll down to custom-model-data-mappings section and put the corresponding oraxen texture, along with
-whether or the item is a tool (a pickaxe, axe, sword, etc) in this format:
+whether the item is a tool (a pickaxe, axe, sword, etc) or not in this format:
 ```  
   - "amber_axe;true"
   - "amber_helmet;false"
