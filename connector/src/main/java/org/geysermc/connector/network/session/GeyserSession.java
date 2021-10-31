@@ -159,6 +159,8 @@ public class GeyserSession implements CommandSender {
     private final Int2ObjectMap<TeleportCache> teleportMap = new Int2ObjectOpenHashMap<>();
 
     private final WorldBorder worldBorder;
+
+
     /**
      * Whether simulated fog has been sent to the client or not.
      */
@@ -464,6 +466,7 @@ public class GeyserSession implements CommandSender {
 
         this.worldBorder = new WorldBorder(this);
 
+
         this.collisionManager = new CollisionManager(this);
 
         this.playerEntity = new SessionPlayerEntity(this);
@@ -503,7 +506,6 @@ public class GeyserSession implements CommandSender {
         });
     }
 
-
     /**
      * Send all necessary packets to load Bedrock into the server
      */
@@ -516,10 +518,12 @@ public class GeyserSession implements CommandSender {
         // Set the hardcoded shield ID to the ID we just defined in StartGamePacket
         upstream.getSession().getHardcodedBlockingId().set(this.itemMappings.getStoredItems().shield().getBedrockId());
 
-
         if (this.itemMappings.getFurnaceMinecartData() != null) {
             ItemComponentPacket componentPacket = new ItemComponentPacket();
             componentPacket.getItems().add(this.itemMappings.getFurnaceMinecartData());
+            for (ComponentItemData data: this.itemMappings.getCustomItems()){
+                componentPacket.getItems().add(data);
+            }
             upstream.sendPacket(componentPacket);
         }
 
@@ -1197,7 +1201,6 @@ public class GeyserSession implements CommandSender {
         startGamePacket.setMultiplayerCorrelationId("");
         startGamePacket.setItemEntries(this.itemMappings.getItemEntries());
         startGamePacket.setVanillaVersion("*");
-        startGamePacket.setSeed(114514);
         startGamePacket.setInventoriesServerAuthoritative(true);
         startGamePacket.setServerEngine(""); // Do we want to fill this in?
 
@@ -1459,4 +1462,5 @@ public class GeyserSession implements CommandSender {
             player.sendUpstreamPacket(emoteList);
         }
     }
+
 }

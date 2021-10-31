@@ -58,8 +58,7 @@ import java.util.*;
 /**
  * Populates the item registries.
  */
-public class ItemRegistryPopulator{
-    private static int FID;
+public class ItemRegistryPopulator {
     private static final Map<String, PaletteVersion> PALETTE_VERSIONS;
 
     static {
@@ -76,12 +75,14 @@ public class ItemRegistryPopulator{
 
     private record PaletteVersion(int protocolVersion, Map<String, String> additionalTranslatedItems) {
     }
+    public static Map<String, Integer> customIDs;
 
     public static void populate() {
         // Load item mappings from Java Edition to Bedrock Edition
         InputStream stream = FileUtils.getResource("mappings/items.json");
 
-        TypeReference<Map<String, GeyserMappingItem>> mappingItemsType = new TypeReference<>() { };
+        TypeReference<Map<String, GeyserMappingItem>> mappingItemsType = new TypeReference<>() {
+        };
 
         Map<String, GeyserMappingItem> items;
         try {
@@ -94,7 +95,8 @@ public class ItemRegistryPopulator{
         for (Map.Entry<String, PaletteVersion> palette : PALETTE_VERSIONS.entrySet()) {
             stream = FileUtils.getResource(String.format("bedrock/runtime_item_states.%s.json", palette.getKey()));
 
-            TypeReference<List<PaletteItem>> paletteEntriesType = new TypeReference<>() {};
+            TypeReference<List<PaletteItem>> paletteEntriesType = new TypeReference<>() {
+            };
 
             // Used to get the Bedrock namespaced ID (in instances where there are small differences)
             Object2IntMap<String> bedrockIdentifierToId = new Object2IntOpenHashMap<>();
@@ -277,6 +279,8 @@ public class ItemRegistryPopulator{
                             boolean firstPass = true;
                             // Block states are all grouped together. In the mappings, we store the first block runtime ID in order,
                             // and the last, if relevant. We then iterate over all those values and get their Bedrock equivalents
+                            customIDs = new HashMap<>();
+
                             Integer lastBlockRuntimeId = entry.getValue().getLastBlockRuntimeId() == null ? firstBlockRuntimeId : entry.getValue().getLastBlockRuntimeId();
                             for (int i = firstBlockRuntimeId; i <= lastBlockRuntimeId; i++) {
                                 int bedrockBlockRuntimeId = blockMappings.getBedrockBlockId(i);
@@ -443,10 +447,11 @@ public class ItemRegistryPopulator{
             identifierToMapping.put(lodestoneEntry.getJavaIdentifier(), lodestoneEntry);
 
             ComponentItemData furnaceMinecartData = null;
+            List<ComponentItemData> allitemdata = new ArrayList<>();
             if (usingFurnaceMinecart) {
                 // Add the furnace minecart as a custom item
                 int furnaceMinecartId = mappings.size() + 1;
-                FID = furnaceMinecartId;
+
                 entries.put("geysermc:furnace_minecart", new StartGamePacket.ItemEntry("geysermc:furnace_minecart", (short) furnaceMinecartId, true));
 
                 mappings.put(javaFurnaceMinecartId, ItemMapping.builder()
@@ -475,7 +480,10 @@ public class ItemRegistryPopulator{
                 // 1.17.30 moves the icon to the item properties section
                 (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ?
                         itemProperties : componentBuilder).putCompound("minecraft:icon", NbtMap.builder()
-                        .putString("texture", "pa_blowgun").build());
+                        .putString("texture", "minecart_furnace")
+                        .putString("frame", "0.000000")
+                        .putInt("frame_version", 1)
+                        .putString("legacy_id", "").build());
                 componentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "item.minecartFurnace.name").build());
 
                 // Indicate that the arm animation should play on rails
@@ -488,7 +496,7 @@ public class ItemRegistryPopulator{
 
                 // We always want to allow offhand usage when we can - matches Java Edition
                 itemProperties.putBoolean("allow_off_hand", true);
-                itemProperties.putBoolean("hand_equipped", true);
+                itemProperties.putBoolean("hand_equipped", false);
                 itemProperties.putInt("max_stack_size", 1);
                 itemProperties.putString("creative_group", "itemGroup.name.minecart");
                 itemProperties.putInt("creative_category", 4); // 4 - "Items"
@@ -496,6 +504,106 @@ public class ItemRegistryPopulator{
                 componentBuilder.putCompound("item_properties", itemProperties.build());
                 builder.putCompound("components", componentBuilder.build());
                 furnaceMinecartData = new ComponentItemData("geysermc:furnace_minecart", builder.build());
+
+
+                int itemId = mappings.size() +1;
+
+                for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
+
+                    if (sd.contains(";")) {
+                        String[] values = sd.split(";");
+
+                        //int customModelData = Integer.parseInt(values[0]);
+                        String texture = values[0];
+                        boolean isTool = Boolean.parseBoolean(values[1]);
+
+                        ComponentItemData customItemData = null;
+
+                        // Add a custom item
+                        itemId = itemId + 1;
+                        javaFurnaceMinecartId = itemIndex++;
+
+                        entries.put("geysermc:" + texture, new StartGamePacket.ItemEntry("geysermc:" + texture, (short) itemId, true));
+
+                        mappings.put(javaFurnaceMinecartId, ItemMapping.builder().javaIdentifier("geysermc:" + texture).bedrockIdentifier("geysermc:" + texture).javaId(javaFurnaceMinecartId).bedrockId(itemId).bedrockData(0).bedrockBlockId(-1).stackSize(64).build());
+
+                        creativeItems.add(ItemData.builder()
+                                .netId(netId)
+                                .id(itemId)
+                                .count(1).build());
+
+                        NbtMapBuilder custombuilder = NbtMap.builder();
+                        custombuilder.putString("name", "geysermc:" + texture)
+                                .putInt("id", itemId);
+
+                        NbtMapBuilder customitemProperties = NbtMap.builder();
+                        NbtMapBuilder customComponentBuilder = NbtMap.builder();
+                        NbtMapBuilder renderOffsets = NbtMap.builder();
+                        // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
+                        // 1.17.30 moves the icon to the item properties section
+                        (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ? customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder().putString("texture", texture).build());
+                        customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item" + itemId).build());
+
+                        List<NbtMap> useOnCustomTag = Collections.singletonList(NbtMap.builder().putString("tags", "q.any_tag('rail')").build());
+
+
+                        // We always want to allow offhand usage when we can - matches Java Edition
+                        customitemProperties.putBoolean("allow_off_hand", true);
+                        customitemProperties.putBoolean("hand_equipped", isTool);
+                        customitemProperties.putInt("max_stack_size", 64);
+                        //very hacky method
+                       /* String type = "tools";
+                        if(texture.contains("sword"))type ="diamond_sword";
+                        if(texture.contains("hoe"))type ="diamond_hoe";
+                        if(texture.contains("pickaxe"))type ="diamond_pickaxe";
+                        if(texture.contains("axe"))type ="diamond_axe";
+                        if(texture.contains("shovel") || texture.contains("spade") )type ="diamond_shovel";*/
+                        NbtMapBuilder final1 = NbtMap.builder();
+                        NbtMapBuilder first_person = NbtMap.builder();
+                        NbtMapBuilder third_person = NbtMap.builder();
+                        NbtMapBuilder fp_rotation = NbtMap.builder();
+                        fp_rotation.putFloat("x",0.0f);
+                        fp_rotation.putFloat("y",0.0f);
+                        fp_rotation.putFloat("z",0.0f);
+                        NbtMapBuilder fp_position = NbtMap.builder();
+                        fp_position.putFloat("x",0.0f);
+                        fp_position.putFloat("y",0.0f);
+                        fp_position.putFloat("z",0.0f);
+                        NbtMapBuilder fp_scale = NbtMap.builder();
+                        fp_scale.putFloat("x",0.05f);
+                        fp_scale.putFloat("y",0.05f);
+                        fp_scale.putFloat("z",0.05f);
+                        first_person.putCompound("position",fp_position.build());
+                        first_person.putCompound("rotation",fp_rotation.build());
+                        first_person.putCompound("scale",fp_scale.build());
+                        NbtMapBuilder tp_rotation = NbtMap.builder();
+                        tp_rotation.putFloat("x",0.0f);
+                        tp_rotation.putFloat("y",0.0f);
+                        tp_rotation.putFloat("z",0.0f);
+                        NbtMapBuilder tp_position = NbtMap.builder();
+                        tp_position.putFloat("x",0.0f);
+                        tp_position.putFloat("y",0.0f);
+                        tp_position.putFloat("z",0.0f);
+                        NbtMapBuilder tp_scale = NbtMap.builder();
+                        tp_scale.putFloat("x",0.05f);
+                        tp_scale.putFloat("y",0.05f);
+                        tp_scale.putFloat("z",0.05f);
+                        third_person.putCompound("position",tp_position.build());
+                        third_person.putCompound("rotation",tp_rotation.build());
+                        third_person.putCompound("scale",tp_scale.build());
+                        final1.putCompound("first_person",first_person.build());
+                        final1.putCompound("third_person",third_person.build());
+                        renderOffsets.putCompound("main_hand",final1.build());
+                        renderOffsets.putCompound("off_hand",final1.build());
+                        componentBuilder.putCompound("minecraft:render_offsets", renderOffsets.build());
+                        customComponentBuilder.putCompound("item_properties", customitemProperties.build());
+                        custombuilder.putCompound("components", customComponentBuilder.build());
+                        customItemData = new ComponentItemData("geysermc:" + texture, custombuilder.build());
+                        allitemdata.add(customItemData);
+                        customIDs.put(texture, itemId);
+                    }
+                }
+
             }
 
             ItemMappings itemMappings = ItemMappings.builder()
@@ -510,14 +618,13 @@ public class ItemRegistryPopulator{
                     .spawnEggIds(spawnEggs)
                     .carpets(carpets)
                     .furnaceMinecartData(furnaceMinecartData)
+                    .customItems(allitemdata)
                     .build();
 
+
+
             Registries.ITEMS.register(palette.getValue().protocolVersion(), itemMappings);
-
-
         }
-    }
-    public static int getFid(){
-        return FID;
+
     }
 }

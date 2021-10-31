@@ -32,9 +32,7 @@ import org.geysermc.packconverter.api.PackConverter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FixWrongRootFolderConverter extends AbstractConverter {

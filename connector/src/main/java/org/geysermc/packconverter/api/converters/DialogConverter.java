@@ -49,7 +49,7 @@ public class DialogConverter extends AbstractConverter {
 
     static {
         defaultData.add(new Object[] {
-                "textures/gui/container/generic_54.png",
+            "textures/gui/container/generic_54.png",
             256,
             new Object[] {
                 new Object[] {0, 0, 176, 222, new int[] {7, 17, 7, 7}, new Object[] {

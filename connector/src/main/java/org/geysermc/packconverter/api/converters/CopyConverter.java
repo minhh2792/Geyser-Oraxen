@@ -49,7 +49,7 @@ public class CopyConverter extends AbstractConverter {
         defaultData.add(new String[] {"textures/items/beef_raw.png", "textures/items/hoglin_meat_raw.png"});
 
         // Cat
-        defaultData.add(new String[] {"textures/entity/cat/redtabby.png", "textures/entity/cat/red.png"});
+        defaultData.add(new String[] {"textures/entity/cat/redtabby.png","textures/entity/cat/red.png"});
         defaultData.add(new String[] {"textures/entity/cat/siamesecat.png", "textures/entity/cat/siamese.png"});
         defaultData.add(new String[] {"textures/entity/cat/tuxedo.png", "textures/entity/cat/blackcat.png"});
 

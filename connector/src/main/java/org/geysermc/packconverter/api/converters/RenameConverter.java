@@ -29,6 +29,7 @@ package org.geysermc.packconverter.api.converters;
 import lombok.Getter;
 import org.geysermc.packconverter.api.PackConverter;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -34,6 +34,7 @@ import org.geysermc.packconverter.api.PackConverter;
 import org.geysermc.packconverter.api.utils.ImageUtils;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -48,187 +49,187 @@ public class NineSliceConverter extends AbstractConverter {
 
     static {
         defaultData.add(new Object[] {
-                "textures/gui/recipe_book.png",
+            "textures/gui/recipe_book.png",
             256,
             new Object[] {
                 new Object[] {54, 206, 24, 24, 5, new String[] {
-                        "textures/ui/cell_image_red",
-                        "textures/ui/recipe_book_red_button",
-                        "textures/ui/recipe_book_red_button_pressed",
-                        "textures/ui/button_trade_red",
-                        "textures/ui/button_trade_red_pressed"
+                    "textures/ui/cell_image_red",
+                    "textures/ui/recipe_book_red_button",
+                    "textures/ui/recipe_book_red_button_pressed",
+                    "textures/ui/button_trade_red",
+                    "textures/ui/button_trade_red_pressed"
                 }}
             },
             new String[0]
         });
         defaultData.add(new Object[] {
-                "textures/gui/widgets.png",
+            "textures/gui/widgets.png",
             256,
             new Object[] {
                 new Object[] {0, 46, 200, 20, 5, new String[] {
-                        "textures/ui/button_borderless_darkpressednohover",
-                        "textures/ui/button_borderless_lightpressednohover",
-                        "textures/ui/disabledButtonNoBorder",
-                        "textures/ui/recipe_book_button_borderless_lightpressednohover"
+                    "textures/ui/button_borderless_darkpressednohover",
+                    "textures/ui/button_borderless_lightpressednohover",
+                    "textures/ui/disabledButtonNoBorder",
+                    "textures/ui/recipe_book_button_borderless_lightpressednohover"
                 }},
                 new Object[] {0, 66, 200, 20, 5, new String[] {
-                        "textures/ui/button_borderless_dark",
-                        "textures/ui/button_borderless_light",
-                        "textures/ui/pocket_button_default",
-                        "textures/ui/recipe_book_button_borderless_light",
-                        "textures/ui/recipe_book_dark_button",
-                        "textures/ui/recipe_book_light_button"
+                    "textures/ui/button_borderless_dark",
+                    "textures/ui/button_borderless_light",
+                    "textures/ui/pocket_button_default",
+                    "textures/ui/recipe_book_button_borderless_light",
+                    "textures/ui/recipe_book_dark_button",
+                    "textures/ui/recipe_book_light_button"
                 }},
                 new Object[] {0, 86, 200, 20, 5, new String[] {
-                        "textures/ui/button_borderless_darkhover",
-                        "textures/ui/button_borderless_darkpressed",
-                        "textures/ui/button_borderless_lighthover",
-                        "textures/ui/button_borderless_lightpressed",
-                        "textures/ui/pocket_button_hover",
-                        "textures/ui/pocket_button_pressed",
-                        "textures/ui/recipe_book_button_borderless_lighthover",
-                        "textures/ui/recipe_book_button_borderless_lightpressed",
-                        "textures/ui/recipe_book_dark_button_pressed",
-                        "textures/ui/recipe_book_light_button_pressed"
+                    "textures/ui/button_borderless_darkhover",
+                    "textures/ui/button_borderless_darkpressed",
+                    "textures/ui/button_borderless_lighthover",
+                    "textures/ui/button_borderless_lightpressed",
+                    "textures/ui/pocket_button_hover",
+                    "textures/ui/pocket_button_pressed",
+                    "textures/ui/recipe_book_button_borderless_lighthover",
+                    "textures/ui/recipe_book_button_borderless_lightpressed",
+                    "textures/ui/recipe_book_dark_button_pressed",
+                    "textures/ui/recipe_book_light_button_pressed"
                 }},
                 new Object[] {0, 22, 24, 24, 5, new String[] {
-                        "textures/ui/cell_image_invert"
+                    "textures/ui/cell_image_invert"
                 }}
             },
             new String[] {
-                    "textures/ui/focus_border_selected",
-                    "textures/ui/focus_border_white",
-                    "textures/ui/pack_borders",
-                    "textures/ui/pause_screen_border",
-                    "textures/ui/square_image_border_white",
-                    "textures/ui/world_screenshot_focus_border"
+                "textures/ui/focus_border_selected",
+                "textures/ui/focus_border_white",
+                "textures/ui/pack_borders",
+                "textures/ui/pause_screen_border",
+                "textures/ui/square_image_border_white",
+                "textures/ui/world_screenshot_focus_border"
             }
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/beacon.png",
+            "textures/gui/container/beacon.png",
             256,
             new Object[] {
                 new Object[] {0, 219, 22, 22, 5, new String[] {
-                        "textures/ui/beacon_button_default"
+                    "textures/ui/beacon_button_default"
                 }},
                 new Object[] {22, 219, 22, 22, 5, new String[] {
-                        "textures/ui/beacon_button_pressed"
+                    "textures/ui/beacon_button_pressed"
                 }},
                 new Object[] {44, 219, 22, 22, 5, new String[] {
-                        "textures/ui/beacon_button_locked"
+                    "textures/ui/beacon_button_locked"
                 }},
                 new Object[] {66, 219, 22, 22, 5, new String[] {
-                        "textures/ui/beacon_button_hover"
+                    "textures/ui/beacon_button_hover"
                 }}
             },
             new String[0]
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/enchanting_table.png",
+            "textures/gui/container/enchanting_table.png",
             256,
             new Object[] {
                 new Object[] {0, 166, 108, 19, 5, new String[] {
-                        "textures/ui/enchanting_active_background"
+                    "textures/ui/enchanting_active_background"
                 }},
                 new Object[] {0, 185, 108, 19, 5, new String[] {
-                        "textures/ui/enchanting_dark_background"
+                    "textures/ui/enchanting_dark_background"
                 }},
                 new Object[] {0, 204, 108, 19, 5, new String[] {
-                        "textures/ui/enchanting_active_background_with_hover_text"
+                    "textures/ui/enchanting_active_background_with_hover_text"
                 }}
             },
             new String[0]
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/generic_54.png",
+            "textures/gui/container/generic_54.png",
             256,
             new Object[] {
                 new Object[] {7, 17, 18, 18, 5, new String[] {
-                        "textures/ui/cell_image",
-                        "textures/ui/cell_image_normal",
-                        "textures/ui/item_cell",
-                        "textures/ui/recipe_book_item_bg"
+                    "textures/ui/cell_image",
+                    "textures/ui/cell_image_normal",
+                    "textures/ui/item_cell",
+                    "textures/ui/recipe_book_item_bg"
                 }},
                 new Object[] {2, 2, 1, 1, 0, new String[] {
-                        "textures/ui/dialog_divider",
-                        "textures/ui/divider",
-                        "textures/ui/divider2",
-                        "textures/ui/divider3",
-                        "textures/ui/HowToPlayDivider",
-                        "textures/ui/lightgreybars",
-                        "textures/ui/list_item_divider_line_light",
-                        "textures/ui/StoreTopBar",
-                        "textures/ui/StoreTopBarFiller"
+                    "textures/ui/dialog_divider",
+                    "textures/ui/divider",
+                    "textures/ui/divider2",
+                    "textures/ui/divider3",
+                    "textures/ui/HowToPlayDivider",
+                    "textures/ui/lightgreybars",
+                    "textures/ui/list_item_divider_line_light",
+                    "textures/ui/StoreTopBar",
+                    "textures/ui/StoreTopBarFiller"
                 }}
             },
             new String[] {
-                    "textures/ui/recipe_book_pane_bg",
-                    "textures/ui/recipe_book_touch_cell_selected"
+                "textures/ui/recipe_book_pane_bg",
+                "textures/ui/recipe_book_touch_cell_selected"
             }
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/inventory.png",
+            "textures/gui/container/inventory.png",
             256,
             new Object[] {
                 new Object[] {25, 7, 51, 72, 5, new String[] {
-                        "textures/ui/player_preview_border"
+                    "textures/ui/player_preview_border"
                 }}
             },
             new String[0]
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/creative_inventory/tab_item_search.png",
+            "textures/gui/container/creative_inventory/tab_item_search.png",
             256,
             new Object[] {
                 new Object[] {80, 4, 90, 12, 5, new String[] {
-                        "textures/ui/edit_box_indent",
-                        "textures/ui/edit_box_indent_hover"
+                    "textures/ui/edit_box_indent",
+                    "textures/ui/edit_box_indent_hover"
                 }}
             },
             new String[0]
         });
         defaultData.add(new Object[] {
-                "textures/gui/container/creative_inventory/tabs.png",
+            "textures/gui/container/creative_inventory/tabs.png",
             256,
             new Object[] {
                 new Object[] {0, 0, 28, 32, 5, new String[] {
-                        "textures/ui/pocket_tab_left_side",
-                        "textures/ui/recipe_book_side_toggle_dark",
-                        "textures/ui/TabLeftBack",
-                        "textures/ui/TabLeftBackBottomMost",
-                        "textures/ui/TabLeftBackTopMost",
-                        "textures/ui/TabTopBackLeftMost"
+                    "textures/ui/pocket_tab_left_side",
+                    "textures/ui/recipe_book_side_toggle_dark",
+                    "textures/ui/TabLeftBack",
+                    "textures/ui/TabLeftBackBottomMost",
+                    "textures/ui/TabLeftBackTopMost",
+                    "textures/ui/TabTopBackLeftMost"
                 }},
                 new Object[] {28, 0, 28, 32, 5, new String[] {
-                        "textures/ui/recipe_back_panel",
-                        "textures/ui/TabTopBack",
-                        "textures/ui/toolbar_background"
+                    "textures/ui/recipe_back_panel",
+                    "textures/ui/TabTopBack",
+                    "textures/ui/toolbar_background"
                 }},
                 new Object[] {140, 0, 28, 32, 5, new String[] {
-                        "textures/ui/pocket_tab_right_side",
-                        "textures/ui/TabRightBack",
-                        "textures/ui/TabRightBackBottomMost",
-                        "textures/ui/TabRightBackTopMost",
-                        "textures/ui/TabTopBackRightMost",
-                        "textures/ui/TabTopBackRightMostDark",
-                        "textures/ui/XTab"
+                    "textures/ui/pocket_tab_right_side",
+                    "textures/ui/TabRightBack",
+                    "textures/ui/TabRightBackBottomMost",
+                    "textures/ui/TabRightBackTopMost",
+                    "textures/ui/TabTopBackRightMost",
+                    "textures/ui/TabTopBackRightMostDark",
+                    "textures/ui/XTab"
                 }},
                 new Object[] {0, 32, 28, 32, 5, new String[] {
-                        "textures/ui/recipe_book_side_toggle_dark_hover",
-                        "textures/ui/TabLeftFront",
-                        "textures/ui/TabLeftFrontBottomMost",
-                        "textures/ui/TabLeftFrontTopMost",
-                        "textures/ui/TabTopFrontLeftMost"
+                    "textures/ui/recipe_book_side_toggle_dark_hover",
+                    "textures/ui/TabLeftFront",
+                    "textures/ui/TabLeftFrontBottomMost",
+                    "textures/ui/TabLeftFrontTopMost",
+                    "textures/ui/TabTopFrontLeftMost"
                 }},
                 new Object[] {28, 32, 28, 32, 5, new String[] {
-                        "textures/ui/TabTopFront"
+                    "textures/ui/TabTopFront"
                 }},
                 new Object[] {140, 32, 28, 32, 5, new String[] {
-                        "textures/ui/TabRightFront",
-                        "textures/ui/TabRightFrontBottomMost",
-                        "textures/ui/TabRightFrontTopMost",
-                        "textures/ui/TabTopFrontRightMost",
-                        "textures/ui/TabTopFrontRightMostDark"
+                    "textures/ui/TabRightFront",
+                    "textures/ui/TabRightFrontBottomMost",
+                    "textures/ui/TabRightFrontTopMost",
+                    "textures/ui/TabTopFrontRightMost",
+                    "textures/ui/TabTopFrontRightMostDark"
                 }}
             },
             new String[0]

@@ -26,6 +26,7 @@
 
 package org.geysermc.packconverter.api.utils;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.gson.JsonParser;
 import com.nukkitx.nbt.NbtMap;
 import com.nukkitx.nbt.NbtMapBuilder;
+import org.geysermc.connector.GeyserConnector;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,31 +44,31 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public class CustomArmorHandler {
-    public static CustomModelData handleCustomArmor(ObjectMapper mapper, Path storage, String originalItemName, String filePath, String fileName, JsonNode itemJsonInfo, JsonNode predicate, String type, Path storageBp,int id) {
+    //public static CustomModelData handleCustomArmor(ObjectMapper mapper, Path storage, String originalItemName, String filePath, String fileName, JsonNode itemJsonInfo, JsonNode predicate, String type, Path storageBp,int id) {
         // Start the creation of the JSON that registers the object
-        filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
-        ObjectNode item = mapper.createObjectNode();
+       // filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
+       // ObjectNode item = mapper.createObjectNode();
         // Standard JSON
-        item.put("format_version", "1.10");
-        ObjectNode itemData = mapper.createObjectNode();
-        ObjectNode itemDescription = mapper.createObjectNode();
+       // item.put("format_version", "1.10");
+       // ObjectNode itemData = mapper.createObjectNode();
+       // ObjectNode itemDescription = mapper.createObjectNode();
         //ObjectNode itemWearable = mapper.createObjectNode();
         // Full identifier with geysermc: prefix (cmd for CustomModelData - just in case it clashes with something we do in the future)
-        String identifier = "geysermc:" + originalItemName;
+        //String identifier = "geysermc:" + originalItemName;
         // Add the original item name as well to prevent conflicts if multiple items share the same model
         //String identifier = "geysermc:" + fileName;
         // Register the full identifier
-        itemDescription.put("identifier", identifier);
-        itemData.set("description", itemDescription);
-        NbtMapBuilder componentBuilder = NbtMap.builder();
+       // itemDescription.put("identifier", identifier);
+       // itemData.set("description", itemDescription);
+       // NbtMapBuilder componentBuilder = NbtMap.builder();
 
-        item.set("minecraft:item", itemData);
+        //item.set("minecraft:item", itemData);
 
         //TODO make sure there can't be duplicates here
-        componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
-        ObjectNode itemComponent = mapper.createObjectNode();
+       // componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
+        //ObjectNode itemComponent = mapper.createObjectNode();
         // Define which texture in item_texture.json this should use. We just set it to the "clean identifier"
-        itemComponent.set("minecraft:icon", mapper.createObjectNode().put("texture",identifier.replace("geysermc:", "")));
+      //  itemComponent.set("minecraft:icon", mapper.createObjectNode().put("texture",identifier.replace("geysermc:", "")));
         //itemComponent.put("allow_off_hand", true);
         //itemComponent.put("hand_equipped", itemJsonInfo.get("hand_equipped").booleanValue());
         //itemComponent.put("max_stack_size", itemJsonInfo.get("max_stack_size").intValue());
@@ -82,42 +84,42 @@ public class CustomArmorHandler {
         if(type.equals("head")) enchantType = "armor_head";
         enchants.put("slot", enchantType);
         itemComponent.set("minecraft:enchantable", enchants);*/
-        ObjectNode armor = mapper.createObjectNode();
-        armor.set("texture_type",mapper.createObjectNode());
-        itemComponent.set("minecraft:armor", armor);
-        String enchantType2 = "";
-        if(type.equals("feet")) enchantType2 = "boots";
-        if(type.equals("legs")) enchantType2 = "leggings";
-        if(type.equals("chest")) enchantType2 = "chestplates";
-        if(type.equals("head")) enchantType2 = "helmets";
-        itemComponent.put("minecraft:render_offsets",enchantType2);
-        itemData.set("components", itemComponent);
-
+      //  ObjectNode armor = mapper.createObjectNode();
+       // armor.set("texture_type",mapper.createObjectNode());
+       // itemComponent.set("minecraft:armor", armor);
+      //  String enchantType2 = "";
+      //  if(type.equals("feet")) enchantType2 = "boots";
+      //  if(type.equals("legs")) enchantType2 = "leggings";
+     //   if(type.equals("chest")) enchantType2 = "chestplates";
+     //   if(type.equals("head")) enchantType2 = "helmets";
+      //  itemComponent.put("minecraft:render_offsets",enchantType2);
+     //   itemData.set("components", itemComponent);
+//
         // Create, if necessary, the folder that stores all item information
-        File itemJsonPath = storage.resolve("items").toFile();
-        if (!itemJsonPath.exists()) {
-            itemJsonPath.mkdir();
-        }
-        String path002 = (fileName.contains("item/") ? fileName.replace("item/", "") + ".json" : fileName + ".json");
-        String path001 = path002.contains("/") ? path002.substring(0, path002.lastIndexOf("/")) : path002;
-        Path path2 = itemJsonPath.toPath().resolve(path001);
-        try (OutputStream outputStream = Files.newOutputStream(path2,
-                StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
-            mapper.writer(new DefaultPrettyPrinter()).writeValue(outputStream, item);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-        createAttachable(mapper, storage, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
-        createEntries(mapper, storageBp, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
-        CustomModelData customModelData = new CustomModelData();
-        customModelData.setIdentifier(identifier);
-        customModelData.setNbt(componentBuilder.build());
-        return customModelData;
-    }
-    public static CustomModelData handleCustomArmor_normal(ObjectMapper mapper, Path storage, String originalItemName, String filePath, String fileName, JsonNode itemJsonInfo, JsonNode predicate, String type, Path storageBp,int id) {
+     //   File itemJsonPath = storage.resolve("items").toFile();
+     //   if (!itemJsonPath.exists()) {
+      //      itemJsonPath.mkdir();
+      //  }
+      //  String path002 = (fileName.contains("item/") ? fileName.replace("item/", "") + ".json" : fileName + ".json");
+      //  String path001 = path002.contains("/") ? path002.substring(0, path002.lastIndexOf("/")) : path002;
+     //   Path path2 = itemJsonPath.toPath().resolve(path001);
+     //   try (OutputStream outputStream = Files.newOutputStream(path2,
+     //           StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+    //        mapper.writer(new DefaultPrettyPrinter()).writeValue(outputStream, item);
+    //    } catch (IOException e) {
+      //      e.printStackTrace();
+      //      return null;
+      //  }
+      //  createAttachable(mapper, storage, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
+      //  createEntries(mapper, storageBp, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
+      //  CustomModelData customModelData = new CustomModelData();
+      //  customModelData.setIdentifier(identifier);
+       // customModelData.setNbt(componentBuilder.build());
+      // return customModelData;
+    //}
+    public static void handleCustomArmor_normal(ObjectMapper mapper, Path storage, String originalItemName, /*String filePath,*/ String fileName, /*JsonNode itemJsonInfo, JsonNode predicate,*/ String type, Path storageBp/*,int id*/) {
         // Start the creation of the JSON that registers the object
-        filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
+      //  filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
         ObjectNode item = mapper.createObjectNode();
         // Standard JSON
         item.put("format_version", "1.10");
@@ -131,18 +133,18 @@ public class CustomArmorHandler {
         // Register the full identifier
         itemDescription.put("identifier", identifier);
         itemData.set("description", itemDescription);
-        NbtMapBuilder componentBuilder = NbtMap.builder();
+        //NbtMapBuilder componentBuilder = NbtMap.builder();
 
         item.set("minecraft:item", itemData);
 
         //TODO make sure there can't be duplicates here
-        componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
+        //componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
         ObjectNode itemComponent = mapper.createObjectNode();
         // Define which texture in item_texture.json this should use. We just set it to the "clean identifier"
         itemComponent.set("minecraft:icon", mapper.createObjectNode().put("texture",identifier.replace("geysermc:", "")));
         itemComponent.put("allow_off_hand", true);
-        itemComponent.put("hand_equipped", itemJsonInfo.get("hand_equipped").booleanValue());
-        itemComponent.put("max_stack_size", itemJsonInfo.get("max_stack_size").intValue());
+        //itemComponent.put("hand_equipped", itemJsonInfo.get("hand_equipped").booleanValue());
+        //itemComponent.put("max_stack_size", itemJsonInfo.get("max_stack_size").intValue());
         itemWearable.put("dispensable", true);
         itemWearable.put("slot", "slot.armor." + type);
         itemComponent.set("minecraft:wearable", itemWearable);
@@ -179,18 +181,18 @@ public class CustomArmorHandler {
             mapper.writer(new DefaultPrettyPrinter()).writeValue(outputStream, item);
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
+            return;
         }
-        createAttachable(mapper, storage, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
-        createEntries(mapper, storageBp, originalItemName, filePath, fileName, itemJsonInfo, predicate,type);
-        CustomModelData customModelData = new CustomModelData();
-        customModelData.setIdentifier(identifier);
-        customModelData.setNbt(componentBuilder.build());
-        return customModelData;
+        createAttachable(mapper, storage, originalItemName, /*filePath,*/ fileName,/* itemJsonInfo, predicate,*/type);
+        createEntries(mapper, storageBp, originalItemName, /*filePath,*/  fileName,/* itemJsonInfo, predicate,*/type);
+        //CustomModelData customModelData = new CustomModelData();
+        //customModelData.setIdentifier(identifier);
+        //customModelData.setNbt(componentBuilder.build());
+        return;
     }
-    private static void createEntries(ObjectMapper mapper, Path storage, String originalItemName, String filePath, String fileName, JsonNode itemJsonInfo, JsonNode predicate, String type) {
+    private static void createEntries(ObjectMapper mapper, Path storage, String originalItemName/*,String filePath*/, String fileName, /*JsonNode itemJsonInfo, JsonNode predicate,*/ String type) {
         // Start the creation of the JSON that registers the object
-        filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
+        //filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
         ObjectNode item = mapper.createObjectNode();
         // Standard JSON
         item.put("format_version", "1.10");
@@ -209,13 +211,13 @@ public class CustomArmorHandler {
         item.set("minecraft:item", itemData);
 
         //TODO make sure there can't be duplicates here
-        componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
+        //componentBuilder.putCompound("minecraft:icon", NbtMap.builder().putString("texture", fileName.substring(filePath.lastIndexOf("/") + 1)).build());
         ObjectNode itemComponent = mapper.createObjectNode();
         // Define which texture in item_texture.json this should use. We just set it to the "clean identifier"
         itemComponent.set("minecraft:icon", mapper.createObjectNode().put("texture",identifier.replace("geysermc:", "")));
         itemComponent.put("allow_off_hand", true);
-        itemComponent.put("hand_equipped", itemJsonInfo.get("hand_equipped").booleanValue());
-        itemComponent.put("max_stack_size", itemJsonInfo.get("max_stack_size").intValue());
+        //itemComponent.put("hand_equipped", itemJsonInfo.get("hand_equipped").booleanValue());
+       // itemComponent.put("max_stack_size", itemJsonInfo.get("max_stack_size").intValue());
         itemWearable.put("dispensable", true);
         itemWearable.put("slot", "slot.armor." + type);
         itemComponent.set("minecraft:wearable", itemWearable);
@@ -250,8 +252,8 @@ public class CustomArmorHandler {
             return;
         }
     }
-    private static void createAttachable(ObjectMapper mapper, Path storage, String originalItemName, String filePath, String fileName, JsonNode itemJsonInfo, JsonNode predicate, String type) {
-        filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
+    private static void createAttachable(ObjectMapper mapper, Path storage, String originalItemName, /*String filePath,*/ String fileName,/* JsonNode itemJsonInfo, JsonNode predicate,*/ String type) {
+        //filePath = filePath.contains(":") ? filePath.split(":")[1] : filePath;
         // Full identifier with geysermc: prefix (cmd for CustomModelData - just in case it clashes with something we do in the future)
         String identifier = "geysermc:" + originalItemName;
         String enchantType = "armor_torso";
@@ -265,11 +267,25 @@ public class CustomArmorHandler {
         if(type.equals("legs")) enchantType1 = "leg";
         if(type.equals("head")) enchantType1 = "helmet";
         String jsonStringSinceTooLazyToWrite = "{\"format_version\": \"1.10\",\"minecraft:attachable\": {\"description\": {\"identifier\": \""+identifier+"\",\"materials\": {\"default\": \"armor\",\"enchanted\": \"armor_enchanted\"},\"textures\": {\"default\": \"textures/default/armors/"+((type.contains("feet") || type.contains("legs"))? originalItemName.split("_")[0] +"_armor_layer_2" : originalItemName.split("_")[0] +"_armor_layer_1" )+"\",\"enchanted\": \"textures/misc/enchanted_item_glint\"},\"geometry\": {\"default\": \"geometry.humanoid.armor."+enchantType+"\"},\"scripts\": {\"parent_setup\": \"variable."+enchantType1+"_layer_visible = 0.0;\"},\"render_controllers\": [\"controller.render.armor\"]}}}";
-        String jsonStringSinceTooLazyToWrite1 = "{\"format_version\": \"1.10\",\"minecraft:attachable\": {\"description\": {\"identifier\": \""+identifier+".player\",\"item\": {\"bridge:"+identifier+"\": \"query.owner_identifier == 'minecraft:player'\"},\"materials\": {\"default\": \"armor\",\"enchanted\": \"armor_enchanted\"},\"textures\": {\"default\": \"textures/default/armors/"+((type.contains("feet") || type.contains("legs"))? originalItemName.split("_")[0] +"_armor_layer_2" : originalItemName.split("_")[0] +"_armor_layer_1" )+"\",\"enchanted\": \"textures/misc/enchanted_item_glint\"},\"geometry\": {\"default\": \"geometry.player.armor."+enchantType+"\"},\"scripts\": {\"parent_setup\": \"variable."+enchantType1+"_layer_visible = 0.0;\"},\"render_controllers\": [\"controller.render.armor\"]}}}";
+        String jsonStringSinceTooLazyToWrite1 = "{\"format_version\": \"1.10\",\"minecraft:attachable\": {\"description\": {\"identifier\": \""+identifier+".player\",\"item\": {\""+identifier+"\": \"query.owner_identifier == 'minecraft:player'\"},\"materials\": {\"default\": \"armor\",\"enchanted\": \"armor_enchanted\"},\"textures\": {\"default\": \"textures/default/armors/"+((type.contains("feet") || type.contains("legs"))? originalItemName.split("_")[0] +"_armor_layer_2" : originalItemName.split("_")[0] +"_armor_layer_1" )+"\",\"enchanted\": \"textures/misc/enchanted_item_glint\"},\"geometry\": {\"default\": \"geometry.player.armor."+enchantType+"\"},\"scripts\": {\"parent_setup\": \"variable."+enchantType1+"_layer_visible = 0.0;\"},\"render_controllers\": [\"controller.render.armor\"]}}}";
         // Create, if necessary, the folder that stores all item information
         File itemJsonPath = storage.resolve("attachables").toFile();
         if (!itemJsonPath.exists()) {
             itemJsonPath.mkdir();
+        }
+        String layerTextureString = ((type.contains("feet") || type.contains("legs"))? originalItemName.split("_")[0] +"_armor_layer_2" : originalItemName.split("_")[0] +"_armor_layer_1" )+".png";
+        Path oraxenFolder = GeyserConnector.getInstance().getBootstrap().getConfigFolder().getParent().resolve("Oraxen/pack/textures/default/armors");
+        String thingyfortextures = "textures/default/armors/"+ layerTextureString;
+        if(!storage.resolve(thingyfortextures).toFile().exists()) {
+            if(oraxenFolder.toFile().exists()) {
+                if(oraxenFolder.resolve(layerTextureString).toFile().exists()) {
+                    try {
+                        Files.copy(oraxenFolder.resolve(layerTextureString), storage.resolve(thingyfortextures));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
         String path002 = (fileName.contains("item/") ? fileName.replace("item/", "") + ".json" : fileName + ".json");
         String path001 = path002.contains("/") ? path002.substring(0, path002.lastIndexOf("/")) : path002;

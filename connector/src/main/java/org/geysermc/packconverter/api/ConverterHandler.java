@@ -27,6 +27,7 @@
 package org.geysermc.packconverter.api;
 
 import org.geysermc.packconverter.api.converters.*;
+import org.geysermc.packconverter.api.utils.CustomArmorHandler;
 
 import java.util.ArrayList;
 import java.util.List;

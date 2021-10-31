@@ -180,15 +180,8 @@ public abstract class ItemTranslator {
             canPlace = getCanModify(canPlaceOn, canPlace);
             builder.canBreak(canBreak);
             builder.canPlace(canPlace);
-
-            IntTag customModelData = nbt.get("CustomModelData");
-            if (customModelData != null) {
-
-                builder.id(ItemRegistryPopulator.getFid());
-                builder.damage(0);
-
-            }
         }
+
         return builder.build();
     }
 
@@ -234,6 +227,21 @@ public abstract class ItemTranslator {
                 .count(itemStack.getAmount());
         if (itemStack.getNbt() != null) {
             builder.tag(this.translateNbtToBedrock(itemStack.getNbt()));
+        }
+        CompoundTag nbt = itemStack.getNbt();
+
+        if (nbt!=null && nbt.get("CustomModelData")!= null) {
+            //IntTag tag = nbt.get("CustomModelData");
+            CompoundTag cTag = nbt.get("PublicBukkitValues");
+            if(cTag != null) {
+                StringTag sTag = cTag.get("oraxen:id");
+                if(sTag != null) {
+                    if (ItemRegistryPopulator.customIDs.containsKey(sTag.getValue())) {
+                        builder.id(ItemRegistryPopulator.customIDs.get(sTag.getValue()));
+                        builder.damage(0);
+                    }
+                }
+            }
         }
         return builder;
     }
