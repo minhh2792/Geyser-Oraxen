@@ -62,7 +62,10 @@ public class ItemMappings {
     IntList spawnEggIds;
     List<ItemData> carpets;
 
+
     @Nullable ComponentItemData furnaceMinecartData;
+    List <ComponentItemData> customItems;
+
 
     /**
      * Gets an {@link ItemMapping} from the given {@link ItemStack}.

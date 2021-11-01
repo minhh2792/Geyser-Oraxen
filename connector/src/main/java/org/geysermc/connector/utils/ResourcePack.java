@@ -26,8 +26,13 @@
 package org.geysermc.connector.utils;
 
 import org.geysermc.connector.GeyserConnector;
+import org.geysermc.packconverter.api.PackConverter;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -61,13 +66,18 @@ public class ResourcePack {
 
         if (!directory.exists()) {
             directory.mkdir();
-
-            // As we just created the directory it will be empty
-            return;
         }
-
-        for (File file : directory.listFiles()) {
-            if (file.getName().endsWith(".zip") || file.getName().endsWith(".mcpack")) {
+        Path oraxenFolder = GeyserConnector.getInstance().getBootstrap().getConfigFolder().getParent().resolve("Oraxen/pack/pack.zip");
+        if(oraxenFolder.toFile().exists()){
+            try {
+                Files.copy(oraxenFolder,GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs/pack-oraxen.zip"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        directory = GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs").toFile();
+            for (File file : directory.listFiles()) {
+            if (file.getName().endsWith(".mcpack")) {
                 ResourcePack pack = new ResourcePack();
 
                 pack.sha256 = FileUtils.calculateSHA256(file);
@@ -101,6 +111,63 @@ public class ResourcePack {
                 } finally {
                     if (stream != null) {
                         stream.close();
+                    }
+                }
+            }
+            else if (file.getName().endsWith(".zip")) {
+                ZipFile originalZip = null;
+                try {
+                    originalZip = new ZipFile(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String pathThingy = file.toPath().toString().replaceFirst("[.][^.]+$", ".mcpack");
+                if (originalZip.getEntry("pack.mcmeta") != null) {
+                    PackConverter packConverter = null;
+                    try {
+                        packConverter = new PackConverter(file.toPath(), Paths.get(pathThingy));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    packConverter.convert();
+                    packConverter.pack();
+                    if (Paths.get(pathThingy).toFile().exists()) {
+                        File file1 = Paths.get(pathThingy).toFile();
+                        ResourcePack pack = new ResourcePack();
+
+                        pack.sha256 = FileUtils.calculateSHA256(file1);
+
+                        Stream<? extends ZipEntry> stream = null;
+                        try {
+                            ZipFile zip = new ZipFile(file1);
+
+                            stream = zip.stream();
+                            stream.forEach((x) -> {
+                                if (x.getName().contains("manifest.json")) {
+                                    try {
+                                        ResourcePackManifest manifest = FileUtils.loadJson(zip.getInputStream(x), ResourcePackManifest.class);
+                                        // Sometimes a pack_manifest file is present and not in a valid format,
+                                        // but a manifest file is, so we null check through that one
+                                        if (manifest.getHeader().getUuid() != null) {
+                                            pack.file = file1;
+                                            pack.manifest = manifest;
+                                            pack.version = ResourcePackManifest.Version.fromArray(manifest.getHeader().getVersion());
+
+                                            PACKS.put(pack.getManifest().getHeader().getUuid().toString(), pack);
+                                        }
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        } catch (Exception e) {
+                            GeyserConnector.getInstance().getLogger().error(LanguageUtils.getLocaleStringLog("geyser.resource_pack.broken", file1.getName()));
+                            e.printStackTrace();
+                        } finally {
+                            if (stream != null) {
+                                stream.close();
+                            }
+                        }
                     }
                 }
             }
