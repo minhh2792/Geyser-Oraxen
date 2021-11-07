@@ -34,6 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.type.ArrayType;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import org.geysermc.connector.registry.populator.ItemRegistryPopulator;
 import org.geysermc.packconverter.api.PackConverter;
 import org.geysermc.packconverter.api.utils.CustomArmorHandler;
 import org.geysermc.packconverter.api.utils.CustomModelDataHandler;
@@ -51,13 +52,15 @@ public class CustomModelDataConverter extends AbstractConverter {
     public static final List<Object[]> defaultData = new ArrayList<>();
 
     static {
-        defaultData.add(new String[] {"assets/minecraft/models", "textures/item_texture.json"});
+        defaultData.add(new String[]{"assets/minecraft/models", "textures/item_texture.json"});
     }
 
     public CustomModelDataConverter(PackConverter packConverter, Path storage, Object[] data, Path storageBp) {
         super(packConverter, storage, data, storageBp);
     }
+
     JsonNode itemInformation;
+
     @Override
     public List<AbstractConverter> convert() {
         packConverter.log("Checking for custom model data");
@@ -118,11 +121,12 @@ public class CustomModelDataConverter extends AbstractConverter {
 
         return new ArrayList<>();
     }
+
     public List<File> traverseDirectory(final File folder, List<File> fileNamesList) {
         for (final File f : folder.listFiles()) {
 
             if (f.isDirectory()) {
-                if(!f.getName().contains("item")) {
+                if (!f.getName().contains("item")) {
                     traverseDirectory(f, fileNamesList);
                 }
             }
@@ -133,8 +137,9 @@ public class CustomModelDataConverter extends AbstractConverter {
         }
         return fileNamesList;
     }
+
     private void handleCustomModelData(/*JsonNode itemInformation,*/ ObjectNode allTextures, ObjectMapper mapper, File directory) {
-        List<File> fileList = traverseDirectory(directory,new ArrayList<File>());
+        List<File> fileList = traverseDirectory(directory, new ArrayList<File>());
         for (File file : fileList) {
             try {
                 if (!file.isFile()) {
@@ -145,6 +150,12 @@ public class CustomModelDataConverter extends AbstractConverter {
                 JsonNode node = mapper.readTree(stream);
                 //if (node.has("overrides")) {
                 String originalItemName = file.getName().replace(".json", "");
+                boolean isTool = false;
+                //this is such a hacky method, that my old computer caught fire
+                if (originalItemName.contains("sword") || originalItemName.toLowerCase().contains("hoe") || originalItemName.toLowerCase().contains("sickle") || originalItemName.toLowerCase().contains("hammer") || originalItemName.toLowerCase().contains("shovel") || originalItemName.toLowerCase().contains("claymore") || originalItemName.toLowerCase().contains("axe") || originalItemName.toLowerCase().contains("pickaxe") || originalItemName.toLowerCase().contains("spade") || originalItemName.toLowerCase().contains("blade"))
+                    isTool = true;
+
+                String finalStr = originalItemName + ";" + isTool + ";";
                 //for (JsonNode override : node.get("overrides")) {
                 //JsonNode predicate = override.get("predicate");
                 //JsonNode pulling = predicate.get("pulling");
@@ -166,10 +177,10 @@ public class CustomModelDataConverter extends AbstractConverter {
                 //    continue;
                 //}
                 String type = "chest";
-                if(originalItemName.contains("_boots")) type = "feet";
-                if(originalItemName.contains("_chestplate")) type = "chest";
-                if(originalItemName.contains("_leggings")) type = "legs";
-                if(originalItemName.contains("_helmet")) type = "head";
+                if (originalItemName.toLowerCase().contains("_boots")) type = "feet";
+                if (originalItemName.toLowerCase().contains("_chestplate")) type = "chest";
+                if (originalItemName.toLowerCase().contains("_leggings")) type = "legs";
+                if (originalItemName.toLowerCase().contains("_helmet")) type = "head";
                 // The "ID" of the CustomModelData. If the ID is 1, then to get the custom model data
                 // You need to run in Java `/give @s stick{CustomModelData:1}`
                 //int id = predicate.get("custom_model_data").asInt();
@@ -177,15 +188,16 @@ public class CustomModelDataConverter extends AbstractConverter {
                 List<String> strArr1 = file.getPath().contains("/") ? java.util.Arrays.asList(file.getPath().split("/")) : java.util.Arrays.asList(file.getPath().split("\\\\"));
                 // Create the texture information
 
-                String out2 = join(strArr1,"/",strArr1.indexOf("models")+1,strArr1.size()).replace(".json","");
-                if(node.get("elements") != null){
+                String out2 = join(strArr1, "/", strArr1.indexOf("models") + 1, strArr1.size()).replace(".json", "");
+                if (node.get("elements") != null) {
                     CustomModelDataHandler.threeDeeModelzBaby(mapper, storage, originalItemName, /*filePath,*/ out2, node/*, itemJsonInfo, predicate,id*/);
-                }
-                else if (originalItemName.contains("_boots") || originalItemName.contains("_leggings") || originalItemName.contains("_chestplate") || originalItemName.contains("_helmet")) {
-                    CustomArmorHandler.handleCustomArmor_normal(mapper, storage, originalItemName, /*filePath,*/ out2,/* itemJsonInfo, predicate,*/ type,storageBp/*,id*/);
-                }
-                else{
+                    finalStr += "true";
+                } else if (originalItemName.toLowerCase().contains("_boots") || originalItemName.toLowerCase().contains("_leggings") || originalItemName.toLowerCase().contains("_chestplate") || originalItemName.toLowerCase().contains("_helmet")) {
+                    CustomArmorHandler.handleCustomArmor_normal(mapper, storage, originalItemName, /*filePath,*/ out2,/* itemJsonInfo, predicate,*/ type, storageBp/*,id*/);
+                    finalStr += "false";
+                } else {
                     CustomModelDataHandler.handleItemData(mapper, storage, originalItemName, /*filePath,*/ out2/*, itemJsonInfo, predicate,id*/);
+                    finalStr += "false";
                 }
                 // See if we have registered the vanilla item already
                 //Int2ObjectMap<CustomModelData> data = packConverter.getCustomModelData().getOrDefault(originalItemName, null);
@@ -203,8 +215,9 @@ public class CustomModelDataConverter extends AbstractConverter {
 
                 List<String> strArr = file.getPath().contains("/") ? java.util.Arrays.asList(file.getPath().split("/")) : java.util.Arrays.asList(file.getPath().split("\\\\"));
                 // Create the texture information
-                String out1 = join(strArr,"/",strArr.indexOf("models")+1,strArr.size()).replace(".json","");
+                String out1 = join(strArr, "/", strArr.indexOf("models") + 1, strArr.size()).replace(".json", "");
                 ObjectNode textureInfo = CustomModelDataHandler.handleItemTexture(mapper, storage, /*filePath,*/out1);
+                ItemRegistryPopulator.itemMappings.add(finalStr);
                 if (textureInfo != null) {
                     // If texture was created, add it to the file where Bedrock will read all textures
                     allTextures.setAll(textureInfo);
@@ -220,6 +233,7 @@ public class CustomModelDataConverter extends AbstractConverter {
             }
         }
     }
+
     public static String join(List<String> array, String separator, int startIndex, int endIndex) {
         if (array == null) {
             return null;

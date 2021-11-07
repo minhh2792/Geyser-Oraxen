@@ -190,7 +190,9 @@ public class CustomBlockConverter extends AbstractConverter {
                         // Map exists, add the new CustomModelData ID and Bedrock string identifier
                         //data.put(id, customModelData);
                         //}
+                        String finalStr = "zzz_"+model + ";false;true";
                         ObjectNode textureInfo = CustomModelDataHandler.handleItemTexture(mapper, storage,  model);
+                        ItemRegistryPopulator.itemMappings.add(finalStr);
                         if (textureInfo != null) {
                             // If texture was created, add it to the file where Bedrock will read all textures
                             allTextures.setAll(textureInfo);

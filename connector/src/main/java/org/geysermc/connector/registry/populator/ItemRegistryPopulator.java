@@ -62,6 +62,7 @@ import java.util.*;
  * Populates the item registries.
  */
 public class ItemRegistryPopulator {
+    public static ArrayList<String> itemMappings = new ArrayList<>();
     private static final Map<String, PaletteVersion> PALETTE_VERSIONS;
     static {
         PALETTE_VERSIONS = new Object2ObjectOpenHashMap<>();
@@ -568,13 +569,14 @@ public class ItemRegistryPopulator {
 
                 int itemId = mappings.size() + 1;
 
-                for (String sd : GeyserConnector.getInstance().getConfig().getCustomModelDataMappings()) {
+                for (String sd : itemMappings) {
                     if (sd.contains(";")) {
                         String[] values = sd.split(";");
 
                         //int customModelData = Integer.parseInt(values[0]);
                         String texture = values[0];
                         boolean isTool = Boolean.parseBoolean(values[1]);
+                        boolean is3DItem = Boolean.parseBoolean(values[2]);
 
                         ComponentItemData customItemData = null;
 
@@ -600,6 +602,12 @@ public class ItemRegistryPopulator {
                         // NbtMapBuilder renderOffsets = NbtMap.builder();
                         // Conveniently, as of 1.16.200, the furnace minecart has a texture AND translation string already.
                         // 1.17.30 moves the icon to the item properties section
+                        /*if(!is3DItem) {
+                            (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ? customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder().putString("texture", texture).build());
+                        }
+                        else if (is3DItem){
+                            customComponentBuilder.putCompound("minecraft:material_instances", NbtMap.builder().putCompound("materials", NbtMap.builder().putCompound("*", NbtMap.builder().putBoolean("ambient_occlusion", true).putBoolean("face_dimming", true).putString("texture", texture).putString("render_method", "opaque").build()).build()).build());
+                        }*/
                         (palette.getValue().protocolVersion() >= Bedrock_v465.V465_CODEC.getProtocolVersion() ? customitemProperties : customComponentBuilder).putCompound("minecraft:icon", NbtMap.builder().putString("texture", texture).build());
                         customComponentBuilder.putCompound("minecraft:display_name", NbtMap.builder().putString("value", "Custom Item" + itemId).build());
 
@@ -622,7 +630,7 @@ public class ItemRegistryPopulator {
                             customitemProperties.putCompound("minecraft:wearable", wearable.build());
                         }
                         //very hacky method
-                       /* String type = "tools";
+                        /*String tool = "tools";
                         if(texture.contains("sword"))type ="diamond_sword";
                         if(texture.contains("hoe"))type ="diamond_hoe";
                         if(texture.contains("pickaxe"))type ="diamond_pickaxe";
