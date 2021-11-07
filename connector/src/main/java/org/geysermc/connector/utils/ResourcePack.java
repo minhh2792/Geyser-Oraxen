@@ -62,21 +62,22 @@ public class ResourcePack {
      * Loop through the packs directory and locate valid resource pack files
      */
     public static void loadPacks() {
+        PACKS.clear();
         File directory = GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs").toFile();
 
         if (!directory.exists()) {
             directory.mkdir();
         }
         Path oraxenFolder = GeyserConnector.getInstance().getBootstrap().getConfigFolder().getParent().resolve("Oraxen/pack/pack.zip");
-        if(oraxenFolder.toFile().exists()){
+        if (oraxenFolder.toFile().exists()) {
             try {
-                Files.copy(oraxenFolder,GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs/pack-oraxen.zip"));
+                Files.copy(oraxenFolder, GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs/pack-oraxen.zip"));
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         directory = GeyserConnector.getInstance().getBootstrap().getConfigFolder().resolve("packs").toFile();
-            for (File file : directory.listFiles()) {
+        for (File file : directory.listFiles()) {
             if (file.getName().endsWith(".mcpack")) {
                 ResourcePack pack = new ResourcePack();
 
@@ -113,8 +114,7 @@ public class ResourcePack {
                         stream.close();
                     }
                 }
-            }
-            else if (file.getName().endsWith(".zip")) {
+            } else if (file.getName().endsWith(".zip")) {
                 ZipFile originalZip = null;
                 try {
                     originalZip = new ZipFile(file);

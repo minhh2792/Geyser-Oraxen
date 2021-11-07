@@ -1,4 +1,4 @@
-<img src="https://geysermc.org/img/geyser-1760-860.png" alt="Geyser" width="600"/>
+<img src="https://dl.dropboxusercontent.com/s/kmke6kchxcwftsg/geyser-1760-860.png" alt="Geyser" width="600"/>
 
 [![forthebadge made-with-java](https://forthebadge.com/images/badges/made-with-java.svg)](https://java.com/)
 
@@ -29,7 +29,7 @@ Take a look [here](https://github.com/GeyserMC/Geyser/wiki/Setup) for how to set
 [![YouTube Video](https://img.youtube.com/vi/U7dZZ8w7Gi4/0.jpg)](https://www.youtube.com/watch?v=U7dZZ8w7Gi4)
 
 Navigate to config.yml and scroll down to custom-model-data-mappings section and put the corresponding oraxen texture, along with
-whether or the item is a tool (a pickaxe, axe, sword, etc) in this format:
+whether the item is a tool (a pickaxe, axe, sword, etc) or not in this format:
 ```  
   - "amber_axe;true"
   - "amber_helmet;false"
@@ -48,15 +48,15 @@ whether or the item is a tool (a pickaxe, axe, sword, etc) in this format:
 
 ## What's Left to be Added/Fixed
 - Near-perfect movement (to the point where anticheat on large servers is unlikely to ban you)
-- Resource pack conversion/CustomModelData 
+- Resource pack conversion/CustomModelData
 - Some Entity Flags
 - Structure block UI
 
 ## TODO
-- Add support for 3d models
+- Add support for 3d models (Kind of done)
 - Add support for java resource pack to bedrock on the fly (DONE)
-- Add custom block thingies
-- fix bugs
+- Add custom block thingies(Done-ish)
+- fix bugs 
 
 ## What can't be fixed
 There are a few things Geyser is unable to support due to various differences between Minecraft Bedrock and Java. For a list of these limitations, see the [Current Limitations](https://github.com/GeyserMC/Geyser/wiki/Current-Limitations) page.

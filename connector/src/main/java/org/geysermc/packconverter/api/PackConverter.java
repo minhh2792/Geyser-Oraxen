@@ -55,6 +55,8 @@ public class PackConverter {
 
     @Getter
     private final Path tmpDir;
+    @Getter
+    private final Path input1;
 
     @Getter
     private final Map<String, Int2ObjectMap<CustomModelData>> customModelData = new HashMap<>();
@@ -65,7 +67,7 @@ public class PackConverter {
 
     public PackConverter(Path input, Path output) throws IOException {
         this.output = output;
-
+        this.input1 = input;
         // Load any image plugins
         ImageIO.scanForPlugins();
 
@@ -163,6 +165,7 @@ public class PackConverter {
      */
     public void cleanup() {
         deleteDirectory(tmpDir.toFile());
+        input1.toFile().delete();
     }
 
     public void log(String message) {
